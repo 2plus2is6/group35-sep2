@@ -11,4 +11,31 @@ public class Board {
     public Board(Renderer renderer) {
         this.renderer = renderer; // Assign Renderer
     }
+
+    public static class HexCube {
+        private int q, r, s;
+
+        public HexCube(int q, int r, int s) { //constructor
+            this.q = q;
+            this.r = r;
+            this.s = s;
+        }
+        //Method finds and returns the six corner points of a hexagon in the ArrayList<Point> form
+        public static ArrayList<Point> polygonCorners(HexCube hex, double startX, double startY, double size) {
+
+            //An Empty array List for corners is declared to store six corners of one hexagon
+            ArrayList<Point> corners = new ArrayList<>();
+
+            double x = startX + size * (3.0 / 2 * hex.q); //Converts cube coordinates to pixels
+            double y = startY + size * Math.sqrt(3) * (hex.r + hex.q / 2.0);//Converts cube coordinates to pixels
+
+            //Method uses trigonometry (cos, sin) to calculate the six corner points so that each corner is 60 degrees apart
+            for (int i = 0; i < 6; i++) {
+                double angle = Math.toRadians(60 * i);
+                corners.add(new Point((int) (x + size * Math.cos(angle)), (int) (y + size * Math.sin(angle))));
+            }
+            return corners;
+        }
+    }
 }
+
