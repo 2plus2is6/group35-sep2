@@ -12,6 +12,51 @@ public class Board {
         this.renderer = renderer; // Assign Renderer
     }
 
+    public void render(GraphicsContext gc) {
+        double primaryX = 410;
+        double primaryY = 345; //Defines center point of the board for the first hexagon
+
+        //An empty ArrayList of ArrayLists declared to stores corners for each hexagon since one ArrayList contains corners for one hexagon
+        ArrayList<ArrayList<Point>> hexDisplay = new ArrayList<>();
+
+        for (int q = -base; q <= base; q++) {
+            for (int r = -base; r <= base; r++) { // Loops through cube coordinates to ensure proper hexagonal layout
+                int s = -q - r; // To check q + r + s = 0
+
+                if (Math.abs(s) <= base) { // Ensures only valid hexagons are created
+                    HexCube h = new HexCube(q, r, s);
+
+                    //Corners are required to draw hexagon so polygonCorners calculates that and returns an ArrayList<Point>
+                    ArrayList<Point> corners = HexCube.polygonCorners(h, primaryX, primaryY, sizeOfHex);
+
+                    //Corners are stored in coordinates to keep track of all hexagons
+                    hexDisplay.add(corners);
+                }
+            }
+        }
+        // Draw all hexagons
+        for (ArrayList<Point> hexagon : hexDisplay) { //Loops through all the recorded coordinates and draws the hexagons
+            drawHexagon(gc, hexagon);
+        }
+    }
+
+
+    private void drawHexagon(GraphicsContext gc, ArrayList<Point> corners) {
+        //.strokepolygon() requires separate x and y arrays of coordinates since it doesn't accept ArrayList<point>
+        double[] xPoints = new double[6]; //Stores x coordinates of hexagon corners
+        double[] yPoints = new double[6]; //Stores y coordinates of hexagon corners
+
+        for (int i = 0; i < 6; i++) {
+            xPoints[i] = corners.get(i).x; // Fetches x-coordinate from ArrayList
+            yPoints[i] = corners.get(i).y; // Fetches y-coordinate from ArrayList
+        }
+
+        //strokepolygon() takes X and Y coordinates array and number of points(i.e. 6 (Hexagon))
+        gc.strokePolygon(xPoints, yPoints, 6);
+    }
+
+
+
     public static class HexCube {
         private int q, r, s;
 
