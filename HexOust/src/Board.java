@@ -62,10 +62,10 @@ public class Board {
         //Debug print info
         System.out.println("Clicked at: (" + x + ", " + y + "), Hex: (q=" + q + ", r=" + r + ")");
 
+        String currentPlayer = player.getCurrentPlayer();
+
         //This checks if the move is valid, returns true if empty else false
-        if (moveValidator.isValidMove(q, r, hexStatus)) {
-            //Stores the move in hexStatus
-            String currentPlayer = player.getCurrentPlayer();
+        if (moveValidator.isValidMove(q, r, hexStatus, player.getCurrentPlayer())) {
 
             //Uses [(int)q + base][(int)r + base] to adjust for negative indexes
             hexStatus[(int)q + base][(int)r + base] = currentPlayer;
