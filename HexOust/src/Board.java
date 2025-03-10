@@ -1,4 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -7,9 +8,16 @@ public class Board {
     private final int base = 6; // Base-7 Hexagonal Grid (N=6 means distance from center)
     private final double sizeOfHex = 30;  // Size of each hexagon
     private Renderer renderer; // Store Renderer instance
+    private final Player player;
+    private final String[][] hexStatus; //Stores info about a hexagon whether it is filled with a colour or not
+    private final MoveValidator moveValidator; //Checks hexStatus before allowing a move
 
-    public Board(Renderer renderer) {
+    public Board(Renderer renderer, Player player) {
         this.renderer = renderer; // Assign Renderer
+        this.player = player;
+        this.moveValidator = new MoveValidator();
+        this.hexStatus = new String[2 * base + 1][2 * base + 1]; //Creates a 2D array to ensure it covers entire grid
+                                                                 // Both indexes store -6 to +6 values (13 values) so both the indexes represent q and r coordinates
     }
 
     public void render(GraphicsContext gc) {
@@ -36,12 +44,48 @@ public class Board {
         }
         // Draw all hexagons
         for (ArrayList<Point> hexagon : hexDisplay) { //Loops through all the recorded coordinates and draws the hexagons
-            drawHexagon(gc, hexagon);
+            drawHexagon(gc, hexagon, Color.LIGHTGRAY);
         }
     }
 
+    public void fillHex(GraphicsContext gc, double x, double y) { //Handles player's click on the board, receives x and y position and fills the hexagon
+        //Converts x and y to q, r, and s
+        HexCube clickedHex = pixelToHex(x, y);
+        double q = clickedHex.q;
+        double r = clickedHex.r;
+        double s = clickedHex.s;
 
-    private void drawHexagon(GraphicsContext gc, ArrayList<Point> corners) {
+        // Ensures whether the clicked hex is under the board limits else the function exits
+        if (Math.abs(q) > base || Math.abs(r) > base || Math.abs(s) > base) {
+            return; // Ignore clicks outside the hexagonal region
+        }
+        //Debug print info
+        System.out.println("Clicked at: (" + x + ", " + y + "), Hex: (q=" + q + ", r=" + r + ")");
+
+        //This checks if the move is valid, returns true if empty else false
+        if (moveValidator.isValidMove(q, r, hexStatus)) {
+            //Stores the move in hexStatus
+            String currentPlayer = player.getCurrentPlayer();
+
+            //Uses [(int)q + base][(int)r + base] to adjust for negative indexes
+            hexStatus[(int)q + base][(int)r + base] = currentPlayer;
+
+
+            // Find the correct hexagon corners and creates a hexCube to represent the clicked hex
+            HexCube hex = new HexCube(q, r, -q - r);
+            ArrayList<Point> corners = HexCube.polygonCorners(hex, 410, 345, sizeOfHex);
+
+            // Fill the correct hexagon
+            drawHexagon(gc, corners, currentPlayer.equals("Red") ? javafx.scene.paint.Color.RED : Color.BLUE);
+
+            // Switch turns
+            player.switchTurn();
+            renderer.updateTurn(player.getCurrentPlayer());
+        } else {
+            renderer.showInvalidMoveMessage();
+        }
+    }
+    private void drawHexagon(GraphicsContext gc, ArrayList<Point> corners, Color color) {
         //.strokepolygon() requires separate x and y arrays of coordinates since it doesn't accept ArrayList<point>
         double[] xPoints = new double[6]; //Stores x coordinates of hexagon corners
         double[] yPoints = new double[6]; //Stores y coordinates of hexagon corners
@@ -58,9 +102,9 @@ public class Board {
 
 
     public static class HexCube {
-        private int q, r, s;
+        private double q, r, s;
 
-        public HexCube(int q, int r, int s) { //constructor
+        public HexCube(double q, double r, double s) { //constructor
             this.q = q;
             this.r = r;
             this.s = s;
