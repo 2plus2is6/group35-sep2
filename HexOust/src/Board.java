@@ -95,6 +95,11 @@ public class Board {
             yPoints[i] = corners.get(i).y; // Fetches y-coordinate from ArrayList
         }
 
+        //This fills the hexagon with its respective colour
+        gc.setFill(color);
+        gc.fillPolygon(xPoints, yPoints, 6);
+        gc.setStroke(Color.BLACK);
+
         //strokepolygon() takes X and Y coordinates array and number of points(i.e. 6 (Hexagon))
         gc.strokePolygon(xPoints, yPoints, 6);
     }
