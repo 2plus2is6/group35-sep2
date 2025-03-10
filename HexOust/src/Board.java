@@ -82,5 +82,13 @@ public class Board {
             return corners;
         }
     }
+
+    private HexCube pixelToHex(double x, double y) { 
+        // Takes the coordinates from the mouse click and converts it to q and r coordinates
+        double q = (2.0 / 3 * (x - 410)) / sizeOfHex; // (2.0/3) accounts for horizontal hex spacing and (x - 410) for centering and multiplies because every column is 1.5 times hex width apart
+        double r = (-1.0 / 3 * (x - 410) + Math.sqrt(3) / 3 * (y - 345)) / sizeOfHex; // The adjustment of x position affects the y position so -1 subtracts a fraction of x from y or r coordinate
+        // Hexagons are vertically spaced by sqrt(3)/2
+        return hexRound(q, r);
+    }
 }
 
