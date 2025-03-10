@@ -29,4 +29,10 @@ public class Renderer {
             turnIndicator.setTextFill(Color.BLUE);
         }
     }
+
+    //Used to show an invalid move with
+    public void showInvalidMoveMessage() {
+        turnIndicator.setText("Invalid Cell Placement!");
+        turnIndicator.setTextFill(Color.BLACK);
+    }
 }
