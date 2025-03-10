@@ -136,5 +136,28 @@ public class Board {
         // Hexagons are vertically spaced by sqrt(3)/2
         return hexRound(q, r);
     }
+    private HexCube hexRound(double q, double r) { // The grid only supports whole number coordinates and q and r are calculated as floating point so hexRound rounds the floating point number off to nearest hex grid position
+
+        double s = -q - r; //Calculates third coordinate in cube
+        //This rounds up the coordinates to nearest integer
+        int intQ = (int) Math.round(q);
+        int intR = (int) Math.round(r);
+        int intS = (int) Math.round(s);
+
+        //This finds out the difference introduced due to the rounding off
+        double qDiff = Math.abs(intQ - q);
+        double rDiff = Math.abs(intR - r);
+        double sDiff = Math.abs(intS - s);
+
+        //Keeping the q+r+s = 0 condition always under check, the largest rounding error is corrected by adjusting the corresponding coordinate
+        if (qDiff > rDiff && qDiff > sDiff) {
+            intQ = -intR - intS;
+        } else if (rDiff > sDiff) {
+            intR = -intQ - intS;
+        }
+
+        //Return the corrected coordinates
+        return new HexCube(intQ, intR, -intQ - intR);
+    }
 }
 
