@@ -5,7 +5,7 @@ import javafx.scene.text.FontWeight;
 
 // Displays "To make a move" with turn indicator
 public class Renderer {
-    private Label turnIndicator; //Stores the text to be displayed for the turn indicator
+    private final Label turnIndicator; //Stores the text to be displayed for the turn indicator
 
     public Renderer(Label turnIndicator) {
         this.turnIndicator = turnIndicator;

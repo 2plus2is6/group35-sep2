@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Board {
     private final int base = 6; // Base-7 Hexagonal Grid (N=6 means distance from center)
     private final double sizeOfHex = 30;  // Size of each hexagon
-    private Renderer renderer; // Store Renderer instance
+    private final Renderer renderer; // Store Renderer instance
     private final Player player;
     private final String[][] hexStatus; //Stores info about a hexagon whether it is filled with a colour or not
     private final MoveValidator moveValidator; //Checks hexStatus before allowing a move
@@ -102,7 +102,9 @@ public class Board {
 
 
     public static class HexCube {
-        private double q, r, s;
+        private final double q;
+        private final double r;
+        private final double s;
 
         public HexCube(double q, double r, double s) { //constructor
             this.q = q;
