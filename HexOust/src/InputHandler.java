@@ -2,7 +2,7 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 public class InputHandler {
-    private Button exitButton; //Stores the exit button
+    private final Button exitButton; //Stores the exit button
 
     public InputHandler(Stage stage) {
         exitButton = new Button("Exit Game"); // The text to be displayed
