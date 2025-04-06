@@ -1,5 +1,6 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import java.util.List;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -8,14 +9,20 @@ public class Board {
     private final int base = 6; // Base-7 Hexagonal Grid (N=6 means distance from center)
     private final double sizeOfHex = 30;  // Size of each hexagon
     private final Renderer renderer; // Store Renderer instance
+    private final double primaryX = 410;
+    private final double primaryY = 345; //Defines center point of the board for the first hexagon
     private final Player player;
     private final String[][] hexStatus; //Stores info about a hexagon whether it is filled with a colour or not
     private final MoveValidator moveValidator; //Checks hexStatus before allowing a move
+    private final CaptureHandler captureHandler;
+
+
 
     public Board(Renderer renderer, Player player) {
         this.renderer = renderer; // Assign Renderer
         this.player = player;
-        this.moveValidator = new MoveValidator();
+        this.captureHandler = new CaptureHandler(this); // Initialize here
+        this.moveValidator = new MoveValidator(captureHandler); // Pass to MoveValidator
         this.hexStatus = new String[2 * base + 1][2 * base + 1]; //Creates a 2D array to ensure it covers entire grid
                                                                  // Both indexes store -6 to +6 values (13 values) so both the indexes represent q and r coordinates
     }
@@ -48,7 +55,7 @@ public class Board {
         }
     }
 
-    public void fillHex(GraphicsContext gc, double x, double y) { //Handles player's click on the board, receives x and y position and fills the hexagon
+    public void fillHex(GraphicsContext gc, double x, double y,  String currentPlayer) { //Handles player's click on the board, receives x and y position and fills the hexagon
         //Converts x and y to q, r, and s
         HexCube clickedHex = pixelToHex(x, y);
         double q = clickedHex.q;
@@ -62,29 +69,39 @@ public class Board {
         //Debug print info
         System.out.println("Clicked at: (" + x + ", " + y + "), Hex: (q=" + q + ", r=" + r + ")");
 
-        String currentPlayer = player.getCurrentPlayer();
-
         //This checks if the move is valid, returns true if empty else false
         if (moveValidator.isValidMove(q, r, hexStatus, player.getCurrentPlayer())) {
 
             //Uses [(int)q + base][(int)r + base] to adjust for negative indexes
-            hexStatus[(int)q + base][(int)r + base] = currentPlayer;
+            hexStatus[(int) q + base][(int) r + base] = currentPlayer;
 
 
             // Find the correct hexagon corners and creates a hexCube to represent the clicked hex
             HexCube hex = new HexCube(q, r, -q - r);
-            ArrayList<Point> corners = HexCube.polygonCorners(hex, 410, 345, sizeOfHex);
+            ArrayList<Point> corners = HexCube.polygonCorners(hex, primaryX, primaryY, sizeOfHex);
 
             // Fill the correct hexagon
             drawHexagon(gc, corners, currentPlayer.equals("Red") ? javafx.scene.paint.Color.RED : Color.BLUE);
 
-            // Switch turns
-            player.switchTurn();
-            renderer.updateTurn(player.getCurrentPlayer());
-        } else {
-            renderer.showInvalidMoveMessage();
+            boolean captureOccurred = captureHandler.checkAndCapture(q, r, hexStatus, currentPlayer, gc);
+
+            if (captureOccurred) {
+                // If a capture has occurred, print a message showing which player captured pieces
+                System.out.println(currentPlayer + " captured pieces!");
+
+                // Update the board UI after the capture
+                updateBoardUI(gc);
+
+                // Grant the current player an extra turn if a capture occurred
+                Player.grantExtraTurn();
+            } else {
+                // If the move is invalid, print an error message
+                System.out.println("Invalid move!");
+            }
         }
     }
+
+
     private void drawHexagon(GraphicsContext gc, ArrayList<Point> corners, Color color) {
         //.strokepolygon() requires separate x and y arrays of coordinates since it doesn't accept ArrayList<point>
         double[] xPoints = new double[6]; //Stores x coordinates of hexagon corners
@@ -102,6 +119,67 @@ public class Board {
 
         //strokepolygon() takes X and Y coordinates array and number of points(i.e. 6 (Hexagon))
         gc.strokePolygon(xPoints, yPoints, 6);
+    }
+
+    // Removes captured stones from the board and redraws them as empty (light gray)
+    public void removeStones(List<int[]> capturedStones, GraphicsContext gc) {
+        // Loop through each captured stone
+        for (int[] hex : capturedStones) {
+            hexStatus[hex[0]][hex[1]] = null; // Clear the logical status of the hex (i.e., make it empty)
+
+            // Calculate the actual coordinates of the hex to redraw
+            int q = hex[0] - base;
+            int r = hex[1] - base;
+            int s = -q - r;
+
+            // Create a HexCube object using the coordinates
+            HexCube hexCube = new HexCube(q, r, s);
+
+            // Get the corners of the hexagon to draw it correctly
+            ArrayList<Point> corners = HexCube.polygonCorners(hexCube, 410, 345, sizeOfHex);
+
+            // Redraw the hexagon as light gray (empty)
+            drawHexagon(gc, corners, Color.LIGHTGRAY);
+        }
+    }
+
+    // Updates the whole board UI by redrawing all hexagons
+    void updateBoardUI(GraphicsContext gc) {
+        // Go through each position in the hexStatus grid
+        for (int qIndex = 0; qIndex < hexStatus.length; qIndex++) {
+            for (int rIndex = 0; rIndex < hexStatus[qIndex].length; rIndex++) {
+                // Calculate the actual Q and R coordinates for the hex
+                int actualQ = qIndex - base;
+                int actualR = rIndex - base;
+                int s = -actualQ - actualR;
+
+                // Skip hexagons that are out of bounds in the hexagonal grid
+                if (Math.abs(actualQ) > base || Math.abs(actualR) > base || Math.abs(s) > base) {
+                    continue; // Just skip the ones out of bounds
+                }
+
+                // If this hex is empty, remove it from the board (show empty hex)
+                if (hexStatus[qIndex][rIndex] == null) {
+                    removeStoneFromBoard(gc, qIndex, rIndex); // Call the method to remove this hex
+                }
+            }
+        }
+    }
+
+    // Removes a single stone from the board and redraws it as empty
+    private void removeStoneFromBoard(GraphicsContext gc, int q, int r) {
+        // Convert array index (q, r) to actual hex coordinates
+        int actualQ = q - base;
+        int actualR = r - base;
+
+        // Create a HexCube object for the given hex coordinates
+        HexCube hex = new HexCube(actualQ, actualR, -actualQ - actualR);
+
+        // Get the corners of the hexagon to draw it
+        ArrayList<Point> corners = HexCube.polygonCorners(hex, primaryX, primaryY, sizeOfHex);
+
+        // Redraw the hexagon as light gray (just like empty)
+        drawHexagon(gc, corners, Color.LIGHTGRAY);  // Paint it over with gray color
     }
 
 
@@ -133,6 +211,16 @@ public class Board {
             return corners;
         }
     }
+
+    public void updateTurnIndicator() {
+        renderer.updateTurn(player.getCurrentPlayer()); // Ensure Renderer is used
+    }
+
+    public String[][] getHexStatus() {
+        return hexStatus;
+    }
+
+
 
     private HexCube pixelToHex(double x, double y) { 
         // Takes the coordinates from the mouse click and converts it to q and r coordinates
