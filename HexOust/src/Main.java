@@ -16,8 +16,7 @@ public class Main extends Application {
 
     private Board board; //Board contains the hexagonal grid
     private Player player;
-    private Renderer renderer;
-
+    private GameManager gameManager;
     public static void main(String[] args) {
         launch(args); //Starts the JavaFX application
     }
@@ -37,7 +36,11 @@ public class Main extends Application {
         //renderer is used only when it's updateTurn function is implemented to show the turn at the top
         Renderer renderer = new Renderer(turnIndicator); //Updates the turn indicator text
         player = new Player();
-        board = new Board(renderer, player);
+        gameManager = new GameManager(board, player);
+
+        board = new Board(renderer, player, gameManager);
+        // Set the Board reference in GameManager (fixes circular dependency)
+        gameManager.setBoard(board);
         board.render(gc);
 
 
@@ -53,7 +56,7 @@ public class Main extends Application {
         canvas.setOnMouseClicked((MouseEvent event) -> {
             double x = event.getX(); // Gets X coordinate
             double y = event.getY(); // Gets Y coordinate
-            board.fillHex(gc, x, y); // Fills hexagon
+            gameManager.makeMove(gc, x, y); // Now calls gameManager instead of board
         });
 
 

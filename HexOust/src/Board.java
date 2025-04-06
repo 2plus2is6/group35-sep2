@@ -18,7 +18,7 @@ public class Board {
 
 
 
-    public Board(Renderer renderer, Player player) {
+    public Board(Renderer renderer, Player player, GameManager gameManager) {
         this.renderer = renderer; // Assign Renderer
         this.player = player;
         this.captureHandler = new CaptureHandler(this); // Initialize here
@@ -185,8 +185,8 @@ public class Board {
 
 
     public static class HexCube {
-        private final double q;
-        private final double r;
+        final double q;
+        final double r;
         private final double s;
 
         public HexCube(double q, double r, double s) { //constructor
@@ -222,7 +222,7 @@ public class Board {
 
 
 
-    private HexCube pixelToHex(double x, double y) { 
+    HexCube pixelToHex(double x, double y) {
         // Takes the coordinates from the mouse click and converts it to q and r coordinates
         double q = (2.0 / 3 * (x - 410)) / sizeOfHex; // (2.0/3) accounts for horizontal hex spacing and (x - 410) for centering and multiplies because every column is 1.5 times hex width apart
         double r = (-1.0 / 3 * (x - 410) + Math.sqrt(3) / 3 * (y - 345)) / sizeOfHex; // The adjustment of x position affects the y position so -1 subtracts a fraction of x from y or r coordinate
