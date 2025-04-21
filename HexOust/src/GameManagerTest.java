@@ -30,7 +30,7 @@ public class GameManagerTest {
         board = new Board(renderer, player, null); // The game board is initialized with the player and renderer
 
         // Create a GameManager with the board and player to control the game flow
-        gameManager = new GameManager(board, player);
+        gameManager = new GameManager(board, player, renderer);
     }
 
     // This is a test case to check if a valid move actually updates the board
