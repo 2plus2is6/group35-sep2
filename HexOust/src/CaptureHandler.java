@@ -1,10 +1,9 @@
-// Import statements
-import javafx.scene.canvas.GraphicsContext; // Used to draw on the canvas (for board updates)
-import java.util.ArrayList; // Used for dynamic arrays (lists)
-import java.util.Arrays; // Used to copy arrays
-import java.util.List; // Used for working with lists of objects
+import javafx.scene.canvas.GraphicsContext;
 
-// CaptureHandler class handles logic related to capturing opponent's pieces
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class CaptureHandler {
     private final Board board; // Reference to the Board class for interaction
 
@@ -54,8 +53,7 @@ public class CaptureHandler {
     }
 
     // Checks and performs the capture if possible
-    public boolean checkAndCapture(double q, double r, String[][] hexStatus, String currentPlayer, GraphicsContext gc) {
-        int boardQ = (int) q + 6; // Adjust q-coordinate for the board
+    public static boolean checkAndCapture(double q, double r, String[][] hexStatus, String currentPlayer, GraphicsContext gc) {        int boardQ = (int) q + 6; // Adjust q-coordinate for the board
         int boardR = (int) r + 6; // Adjust r-coordinate for the board
 
         boolean[][] visited = new boolean[hexStatus.length][hexStatus[0].length]; // Track visited positions
@@ -83,7 +81,7 @@ public class CaptureHandler {
 
         // If there are any captured stones, remove them and return true
         if (!capturedStones.isEmpty()) {
-            board.removeStones(capturedStones, gc); // Remove captured stones from the board
+            Board.removeStones(capturedStones, gc); // Remove captured stones from the board
             return true; // Capture occurred
         }
 
@@ -91,7 +89,7 @@ public class CaptureHandler {
     }
 
     // Depth-first search (DFS) to find all pieces of a group of the same player
-    private void findGroupDFS(int q, int r, String player, String[][] hexStatus, List<int[]> group, boolean[][] visited) {
+    private static void findGroupDFS(int q, int r, String player, String[][] hexStatus, List<int[]> group, boolean[][] visited) {
         // If position is invalid, already visited, or not the player's piece, return
         if (!isValid(q, r, hexStatus) || visited[q][r] || hexStatus[q][r] == null || !hexStatus[q][r].equals(player)) {
             return;
@@ -107,19 +105,19 @@ public class CaptureHandler {
     }
 
     // Calculates the size of the player's group by performing DFS
-    private int calculateGroupSize(int q, int r, String[][] hexStatus, String player, boolean[][] visited) {
+    private static int calculateGroupSize(int q, int r, String[][] hexStatus, String player, boolean[][] visited) {
         List<int[]> group = new ArrayList<>(); // List to store the group's positions
         findGroupDFS(q, r, player, hexStatus, group, visited); // Perform DFS to find all pieces in the group
         return group.size(); // Return the size of the group
     }
 
     // Validates if the position is within the bounds of the board
-    private boolean isValid(int q, int r, String[][] hexStatus) {
+    private static boolean isValid(int q, int r, String[][] hexStatus) {
         return q >= 0 && q < hexStatus.length && r >= 0 && r < hexStatus[0].length; // Check if q and r are within bounds
     }
 
     // Defines the six possible directions to check (adjacent hexagons)
-    private int[][] directions() {
+    private static int[][] directions() {
         return new int[][] {
                 {1, -1}, {1, 0}, {0, 1}, // Right-up, Right, Down-right
                 {-1, 1}, {-1, 0}, {0, -1} // Left-down, Left, Up-left
