@@ -6,13 +6,13 @@ import java.awt.*;
 import java.util.ArrayList;
 //Generates the hexagonal grid using cube coordinates (q, r, s). Draws hexagons using gc.strokePolygon().
 public class Board {
-    private final int base = 6; // Base-7 Hexagonal Grid (N=6 means distance from center)
-    private final double sizeOfHex = 30;  // Size of each hexagon
+    private static final int base = 6; // Base-7 Hexagonal Grid (N=6 means distance from center)
+    private static final double sizeOfHex = 30;  // Size of each hexagon
     private final Renderer renderer; // Store Renderer instance
     private final double primaryX = 410;
     private final double primaryY = 345; //Defines center point of the board for the first hexagon
     private final Player player;
-    private final String[][] hexStatus; //Stores info about a hexagon whether it is filled with a colour or not
+    private static String[][] hexStatus = null; //Stores info about a hexagon whether it is filled with a colour or not
     private final MoveValidator moveValidator; //Checks hexStatus before allowing a move
     private final CaptureHandler captureHandler;
 
@@ -24,7 +24,7 @@ public class Board {
         this.captureHandler = new CaptureHandler(this); // Initialize here
         this.moveValidator = new MoveValidator(captureHandler); // Pass to MoveValidator
         this.hexStatus = new String[2 * base + 1][2 * base + 1]; //Creates a 2D array to ensure it covers entire grid
-                                                                 // Both indexes store -6 to +6 values (13 values) so both the indexes represent q and r coordinates
+        // Both indexes store -6 to +6 values (13 values) so both the indexes represent q and r coordinates
     }
 
     public void render(GraphicsContext gc) {
@@ -81,7 +81,7 @@ public class Board {
             ArrayList<Point> corners = HexCube.polygonCorners(hex, primaryX, primaryY, sizeOfHex);
 
             // Fill the correct hexagon
-            drawHexagon(gc, corners, currentPlayer.equals("Red") ? javafx.scene.paint.Color.RED : Color.BLUE);
+            drawHexagon(gc, corners, currentPlayer.equals("Red") ? Color.RED : Color.BLUE);
 
             boolean captureOccurred = captureHandler.checkAndCapture(q, r, hexStatus, currentPlayer, gc);
 
@@ -102,7 +102,7 @@ public class Board {
     }
 
 
-    private void drawHexagon(GraphicsContext gc, ArrayList<Point> corners, Color color) {
+    private static void drawHexagon(GraphicsContext gc, ArrayList<Point> corners, Color color) {
         //.strokepolygon() requires separate x and y arrays of coordinates since it doesn't accept ArrayList<point>
         double[] xPoints = new double[6]; //Stores x coordinates of hexagon corners
         double[] yPoints = new double[6]; //Stores y coordinates of hexagon corners
@@ -122,7 +122,7 @@ public class Board {
     }
 
     // Removes captured stones from the board and redraws them as empty (light gray)
-    public void removeStones(List<int[]> capturedStones, GraphicsContext gc) {
+    public static void removeStones(List<int[]> capturedStones, GraphicsContext gc) {
         // Loop through each captured stone
         for (int[] hex : capturedStones) {
             hexStatus[hex[0]][hex[1]] = null; // Clear the logical status of the hex (i.e., make it empty)
