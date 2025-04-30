@@ -1,13 +1,16 @@
-import javafx.scene.control.Button;
-import javafx.stage.Stage;
+import javafx.scene.canvas.GraphicsContext; // Used for drawing on canvas
+import javafx.scene.control.Button; // Used for restart and exit buttons
+import javafx.stage.Stage; // Main application window
 
+// Handles user input via buttons
 public class InputHandler {
-    private final Button exitButton; //Stores the exit button
-    private final Button restartButton;
+    private final Button exitButton; // Exit button
+    private final Button restartButton; // Restart button
 
-    public InputHandler(Stage stage, Runnable onRestart) {
-        exitButton = new Button("Exit Game"); // The text to be displayed
-        exitButton.setStyle(
+    // Constructor initializes buttons
+    public InputHandler(Stage stage, GraphicsContext gc, GameManager gameManager, Board board, Player player) {
+        restartButton = new Button("Restart Game"); // Creates restart button
+        restartButton.setStyle( // Styles restart button
                 "-fx-font-size: 16px; " +
                         "-fx-background-color: PURPLE; " +
                         "-fx-text-fill: white; " +
@@ -15,26 +18,31 @@ public class InputHandler {
                         "-fx-border-radius: 5px; " +
                         "-fx-background-radius: 5px;"
         );
-        exitButton.setOnAction(e -> stage.close());
-
-        restartButton = new Button("Restart Game");
-        restartButton.setStyle(
+        exitButton = new Button("Exit Game"); // Creates exit button
+        exitButton.setStyle( // Styles exit button
                 "-fx-font-size: 16px; " +
-                        "-fx-background-color: DARKCYAN; " +
+                        "-fx-background-color: RED; " +
                         "-fx-text-fill: white; " +
                         "-fx-padding: 10px 20px; " +
                         "-fx-border-radius: 5px; " +
                         "-fx-background-radius: 5px;"
         );
-        restartButton.setOnAction(e -> onRestart.run());
+        restartButton.setOnAction(e -> { // Sets restart button action
+            board.resetBoard(); // Resets board
+            player.resetPlayer(); // Resets player
+            gameManager.reset(); // Resets GameManager
+            board.render(gc); // Renders board
+        });
+        exitButton.setOnAction(e -> stage.close()); // Sets exit button action
     }
 
-    // ✅ FIX: These methods should be INSIDE the class
+    // Returns exit button
     public Button getExitButton() {
-        return exitButton;
+        return exitButton; // Returns exit button
     }
 
+    // Returns restart button
     public Button getRestartButton() {
-        return restartButton;
+        return restartButton; // Returns restart button
     }
 }
