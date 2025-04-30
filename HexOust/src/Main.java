@@ -1,77 +1,75 @@
-import javafx.application.Application;
+import javafx.application.Application; // Base class for JavaFX applications
 import javafx.scene.Scene; // Represents the game window
-import javafx.scene.canvas.Canvas; // Draw the hex board
-import javafx.scene.canvas.GraphicsContext; // Drawing function for canvas
-import javafx.scene.control.Button; // Used to create Exit button
-import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
-import javafx.scene.control.Label; // Used to create turn indicator
-import javafx.scene.layout.BorderPane; // Arrange UI elements
-import javafx.scene.layout.VBox; // Vertical layout for elements (Exit button)
+import javafx.scene.canvas.Canvas; // Used to draw the hex board
+import javafx.scene.canvas.GraphicsContext; // Drawing functions for canvas
+import javafx.scene.control.Button; // Used for restart and exit buttons
+import javafx.scene.control.Label; // Used for turn and win indicators
+import javafx.scene.input.MouseEvent; // Handles mouse clicks
+import javafx.scene.layout.BorderPane; // Arranges UI elements
+import javafx.scene.layout.HBox; // Horizontal layout for buttons
+import javafx.scene.layout.StackPane; // Stacks UI elements
+import javafx.geometry.Pos; // Sets alignment for layouts
+import javafx.stage.Stage; // Main application window
 
-
-
-//Creates a JavaFX window, sets up the Canvas and calls Board.render()
+// Main class for the HexOust game
 public class Main extends Application {
+    private Board board; // Board containing the hexagonal grid
+    private Player player; // Player instance for turn management
+    private GameManager gameManager; // Manages game logic
 
-    private Board board; //Board contains the hexagonal grid
-    private Player player;
-    private GameManager gameManager;
+    // Entry point for the application
     public static void main(String[] args) {
-        launch(args); //Starts the JavaFX application
+        launch(args); // Starts the JavaFX application
     }
 
-
+    // Sets up the game UI and logic
     @Override
     public void start(Stage stage) throws Exception {
+        stage.setTitle("HexOust - Sprint 4"); // Sets window title
 
-        stage.setTitle("HexOust - Sprint 1"); //Set window title
+        Canvas canvas = new Canvas(800, 800); // Creates canvas for drawing
+        GraphicsContext gc = canvas.getGraphicsContext2D(); // Gets GraphicsContext for drawing
 
+        Label turnIndicator = new Label(); // Creates turn indicator label
+        Renderer renderer = new Renderer(turnIndicator, stage); // Initializes Renderer
+        renderer.updateTurn("Red"); // Sets initial turn to Red
 
-        Canvas canvas = new Canvas(800, 800); //Canvas is used to draw
-        GraphicsContext gc = canvas.getGraphicsContext2D(); //We draw using GraphicsContext since it allows to draw shapes
+        player = new Player(); // Initializes Player
+        gameManager = new GameManager(board, player, renderer, stage, gc); // Initializes GameManager
+        board = new Board(renderer, player, gameManager); // Initializes Board
+        gameManager.setBoard(board); // Sets Board in GameManager
+        board.resetBoard(); // Resets board state
+        board.render(gc); // Renders initial board
 
+        InputHandler inputHandler = new InputHandler(stage, gc, gameManager, board, player); // Initializes InputHandler
+        Button restartButton = inputHandler.getRestartButton(); // Gets restart button
+        Button exitButton = inputHandler.getExitButton(); // Gets exit button
 
-        Label turnIndicator = new Label(); //To display the player's turn
-        //renderer is used only when it's updateTurn function is implemented to show the turn at the top
-        Renderer renderer = new Renderer(turnIndicator); //Updates the turn indicator text
-        player = new Player();
-        gameManager = new GameManager(board, player);
+        StackPane topPane = new StackPane(); // Creates top pane for indicators
+        topPane.getChildren().addAll(turnIndicator, renderer.getWinMessageLabel()); // Adds turn and win labels
 
-        board = new Board(renderer, player, gameManager);
-        // Set the Board reference in GameManager (fixes circular dependency)
-        gameManager.setBoard(board);
-        board.render(gc);
+        HBox restartContainer = new HBox(); // Creates container for restart button
+        restartContainer.setAlignment(Pos.BOTTOM_LEFT); // Aligns restart button left
+        restartContainer.getChildren().add(restartButton); // Adds restart button
 
+        HBox exitContainer = new HBox(); // Creates container for exit button
+        exitContainer.setAlignment(Pos.BOTTOM_RIGHT); // Aligns exit button right
+        exitContainer.getChildren().add(exitButton); // Adds exit button
 
-        InputHandler inputHandler = new InputHandler(stage); //Handles the exit button
-        Button exitButton = inputHandler.getExitButton(); // Fetches exit button from InputHandler
+        BorderPane root = new BorderPane(); // Creates main layout
+        root.setTop(topPane); // Places indicators at top
+        root.setLeft(restartContainer); // Places restart button at bottom-left
+        root.setRight(exitContainer); // Places exit button at bottom-right
+        root.setCenter(canvas); // Places canvas in center
 
-
-        VBox buttonContainer = new VBox(); // Created to hold the exit button
-        buttonContainer.getChildren().add(exitButton); // Adding exit button to make it appear on the screen
-        buttonContainer.setStyle("-fx-alignment: bottom-right; -fx-padding: 0px 20px 40px 0px;"); //Alignment for the button
-
-        // Sprint 2: Gets the X and Y coordinates for the click and fills the hexagon with respective turn's colour
-        canvas.setOnMouseClicked((MouseEvent event) -> {
-            double x = event.getX(); // Gets X coordinate
-            double y = event.getY(); // Gets Y coordinate
-            gameManager.makeMove(gc, x, y); // Now calls gameManager instead of board
+        canvas.setOnMouseClicked((MouseEvent event) -> { // Sets mouse click handler
+            double x = event.getX(); // Gets x-coordinate of click
+            double y = event.getY(); // Gets y-coordinate of click
+            gameManager.makeMove(gc, x, y); // Processes move
         });
 
-
-        VBox vbox = new VBox(); // Stack UI elements (i.e. turnIndicator and hexBoard)
-        vbox.getChildren().addAll(turnIndicator, canvas); // Assigns first row to turn indicator and second to hexagonal board
-        vbox.setStyle("-fx-alignment: center; -fx-padding: 10px;"); // Centering and Padding
-
-
-        BorderPane root = new BorderPane(); // Creates a main layout
-        root.setTop(vbox); // Put the indicator on top
-        root.setBottom(buttonContainer); // Adds exit button at the bottom-right
-
-
-        Scene scene = new Scene(root, 1000, 900); //Creates the JavaFX window
-        stage.setScene(scene);
-        stage.show(); //Shows the JavaFX window
+        Scene scene = new Scene(root, 1000, 900); // Creates window scene
+        stage.setScene(scene); // Sets scene to stage
+        stage.show(); // Shows window
     }
 }
