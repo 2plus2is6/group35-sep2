@@ -1,41 +1,38 @@
-public class MoveValidator {
-    private CaptureHandler captureHandler;
+import javafx.scene.canvas.GraphicsContext; // Used for drawing (not directly used here)
+import java.util.ArrayList; // Used for lists (not directly used here)
 
+// Validates moves before placement
+public class MoveValidator {
+    private CaptureHandler captureHandler; // Reference to CaptureHandler
+
+    // Constructor initializes MoveValidator
     public MoveValidator(CaptureHandler captureHandler) {
-        this.captureHandler = captureHandler;
+        this.captureHandler = captureHandler; // Assigns CaptureHandler
     }
 
+    // Checks if a move is valid
     public boolean isValidMove(double q, double r, String[][] hexStatus, String currentPlayer) {
-        int boardQ = (int) q + 6; // Adjust to board indices
-        int boardR = (int) r + 6;
-
-        // Check if hex is already occupied
-        if (hexStatus[boardQ][boardR] != null) {
-            return false;
+        int boardQ = (int) q + 6; // Adjusts q to board index
+        int boardR = (int) r + 6; // Adjusts r to board index
+        if (hexStatus[boardQ][boardR] != null) { // Checks if hex is occupied
+            return false; // Returns false if occupied
         }
-
-        // Check if the move would result in a capture (allowed even if adjacent)
-        if (captureHandler.wouldCapture(q, r, hexStatus, currentPlayer)) {
-            return true; // Allow the move if a capture is possible
+        if (captureHandler.wouldCapture(q, r, hexStatus, currentPlayer)) { // Checks for capture
+            return true; // Allows move if capture possible
         }
-
-        // Check adjacent hexes for same-color stones
-        int[][] directions = {
+        int[][] directions = { // Defines adjacent directions
                 {1, -1}, {1, 0}, {0, 1}, // NE, E, SE
                 {-1, 1}, {-1, 0}, {0, -1} // SW, W, NW
         };
-
-        for (int[] dir : directions) {
-            int adjQ = boardQ + dir[0];
-            int adjR = boardR + dir[1];
-            if (adjQ >= 0 && adjQ < hexStatus.length && adjR >= 0 && adjR < hexStatus[0].length) {
-                if (hexStatus[adjQ][adjR] != null && hexStatus[adjQ][adjR].equals(currentPlayer)) {
-                    return false; // Adjacent same color without capture
+        for (int[] dir : directions) { // Loops through directions
+            int adjQ = boardQ + dir[0]; // Calculates adjacent q
+            int adjR = boardR + dir[1]; // Calculates adjacent r
+            if (adjQ >= 0 && adjQ < hexStatus.length && adjR >= 0 && adjR < hexStatus[0].length) { // Checks bounds
+                if (hexStatus[adjQ][adjR] != null && hexStatus[adjQ][adjR].equals(currentPlayer)) { // Checks same-color adjacency
+                    return false; // Returns false if adjacent same color
                 }
             }
         }
-
-        return true; // Valid move
+        return true; // Returns true if valid
     }
-
 }
