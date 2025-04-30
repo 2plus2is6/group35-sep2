@@ -1,31 +1,34 @@
-public class Player { // Keeps track of the current player
-    private String activePlayer; // "Red" or "Blue"
-    private static boolean extraTurn = false; // Instance variable
+// Manages player turns
+public class Player {
+    private String activePlayer; // Current player ("Red" or "Blue")
+    private static boolean extraTurn = false; // Tracks extra turn status
 
-
+    // Constructor initializes Player
     public Player() {
-        activePlayer = "Red"; // Always commences with Red
+        activePlayer = "Red"; // Sets initial player to Red
     }
 
+    // Returns current player
     public String getCurrentPlayer() {
-        return activePlayer; //Returns current player
+        return activePlayer; // Returns active player
     }
 
-    // Method to switch turns between the players
+    // Switches player turns
     public void switchTurn() {
-        // Only switch turns if the current player doesn't have an extra turn
-        if (!extraTurn) {
-            // Toggle between Red and Blue
-            activePlayer = activePlayer.equals("Red") ? "Blue" : "Red";
+        if (!extraTurn) { // Checks if no extra turn
+            activePlayer = activePlayer.equals("Red") ? "Blue" : "Red"; // Toggles player
         }
-        // Reset the extraTurn flag after handling it
-        extraTurn = false;
+        extraTurn = false; // Resets extra turn flag
     }
 
-    // Static method to grant an extra turn to the current player
+    // Grants an extra turn
     public static void grantExtraTurn() {
-        // Set the extraTurn flag to true, meaning the player will get another turn
-        extraTurn = true;
+        extraTurn = true; // Sets extra turn flag
     }
 
+    // Resets player state
+    public void resetPlayer() {
+        activePlayer = "Red"; // Sets player to Red
+        extraTurn = false; // Resets extra turn
+    }
 }
