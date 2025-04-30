@@ -1,37 +1,35 @@
-import org.junit.jupiter.api.BeforeEach; // This annotation runs the setUp method before each test case
-import org.junit.jupiter.api.Test; // This annotation marks the method as a test method
-import static org.junit.jupiter.api.Assertions.*; // Provides assertion methods like assertEquals
+import org.junit.jupiter.api.BeforeEach; // Runs setup before each test
+import org.junit.jupiter.api.Test; // Marks test methods
+import static org.junit.jupiter.api.Assertions.*; // Provides assertion methods
 
+// Tests Player functionality
 public class PlayerTest {
-    private Player player; // The Player object that will be tested
+    private Player player; // Player under test
 
-    // The @BeforeEach method runs before every test. It ensures the player object is freshly initialized for each test.
+    // Sets up test environment
     @BeforeEach
     void setUp() {
-        player = new Player(); // Initialize a new Player object before each test
+        player = new Player(); // Initializes Player
     }
 
-    // This test checks if the initial player is "Red" when the game starts
+    // Tests initial player
     @Test
     void testInitialPlayerIsRed() {
-        // Assert that the current player is "Red" when the game begins
-        assertEquals("Red", player.getCurrentPlayer(), "Initial player should be Red");
+        assertEquals("Red", player.getCurrentPlayer(), "Initial player should be Red"); // Checks initial player
     }
 
-    // This test checks if switching the turn once correctly changes the player to "Blue"
+    // Tests single turn switch
     @Test
     void testSwitchTurnOnceChangesToBlue() {
-        player.switchTurn(); // Switch turn once, should change to Blue
-        // Assert that the current player is "Blue" after one switch
-        assertEquals("Blue", player.getCurrentPlayer(), "After one turn switch, the player should be Blue");
+        player.switchTurn(); // Switches turn
+        assertEquals("Blue", player.getCurrentPlayer(), "After one turn switch, the player should be Blue"); // Checks Blue turn
     }
 
-    // This test checks if switching the turn twice brings it back to "Red"
+    // Tests double turn switch
     @Test
     void testSwitchTurnTwiceReturnsToRed() {
-        player.switchTurn(); // First switch, should change to Blue
-        player.switchTurn(); // Second switch, should change back to Red
-        // Assert that after two switches, the player is back to "Red"
-        assertEquals("Red", player.getCurrentPlayer(), "After two turn switches, the player should be Red");
+        player.switchTurn(); // Switches to Blue
+        player.switchTurn(); // Switches back to Red
+        assertEquals("Red", player.getCurrentPlayer(), "After two turn switches, the player should be Red"); // Checks Red turn
     }
 }
