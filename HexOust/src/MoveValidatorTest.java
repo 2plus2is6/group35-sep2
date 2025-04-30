@@ -1,32 +1,85 @@
-import org.junit.jupiter.api.BeforeEach; // This annotation is used to set up the test environment before each test runs
-import org.junit.jupiter.api.Test; // This annotation marks the method as a test case
-import static org.junit.jupiter.api.Assertions.*; // These are assertion methods used for validating the test results
+import javafx.application.Platform; // Used for JavaFX thread operations
+import javafx.embed.swing.JFXPanel; // Initializes JavaFX toolkit
+import org.junit.jupiter.api.BeforeAll; // Runs setup once before all tests
+import org.junit.jupiter.api.BeforeEach; // Runs setup before each test
+import org.junit.jupiter.api.Test; // Marks test methods
+import java.util.concurrent.CountDownLatch; // Synchronizes JavaFX thread
+import static org.junit.jupiter.api.Assertions.*; // Provides assertion methods
 
+// Tests MoveValidator functionality
 public class MoveValidatorTest {
-    private MoveValidator moveValidator; // This is the class we're testing
-    private Board board; // The game board where the moves are made
-    private String[][] hexStatus; // The board's status to track filled/unfilled hexes
+    private MoveValidator moveValidator; // MoveValidator under test
+    private Board board; // Board instance
+    private String[][] hexStatus; // Board state
+    private Player player; // Player instance
+    private CaptureHandler captureHandler; // CaptureHandler instance
 
-    // This method is run before each test case, it initializes the objects needed for the test
-    @BeforeEach
-    void setUp() {
-        // Initializing the board with mock dependencies (null values used here for simplicity)
-        board = new Board(null, new Player(), null); // A new Board with mocked dependencies
-        CaptureHandler captureHandler = new CaptureHandler(board); // Creating the CaptureHandler to handle capture logic
-        moveValidator = new MoveValidator(captureHandler); // Initializing MoveValidator with the CaptureHandler
-        hexStatus = board.getHexStatus(); // Get the board's hexStatus to check the state of each hex
+    // Initializes JavaFX toolkit
+    @BeforeAll
+    public static void initJavaFX() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1); // Latch to wait for JavaFX
+        Platform.startup(() -> { // Starts JavaFX thread
+            new JFXPanel(); // Initializes JavaFX toolkit
+            latch.countDown(); // Signals completion
+        });
+        latch.await(); // Waits for JavaFX initialization
     }
 
-    // This is a test case that checks if placing a stone on an adjacent hex of the same color is considered invalid
+    // Sets up test environment
+    @BeforeEach
+    void setUp() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1); // Latch to wait for setup
+        Platform.runLater(() -> { // Runs on JavaFX thread
+            try {
+                player = new Player(); // Initializes Player
+                Renderer renderer = new Renderer(new javafx.scene.control.Label(), new javafx.stage.Stage()); // Initializes Renderer
+                GameManager gameManager = new GameManager(null, player, renderer, new javafx.stage.Stage(), null); // Initializes GameManager
+                board = new Board(renderer, player, gameManager); // Initializes Board
+                gameManager.setBoard(board); // Sets Board in GameManager
+                captureHandler = new CaptureHandler(board); // Initializes CaptureHandler
+                moveValidator = new MoveValidator(captureHandler); // Initializes MoveValidator
+                hexStatus = board.getHexStatus(); // Gets board state
+                board.resetBoard(); // Resets board
+            } finally {
+                latch.countDown(); // Signals completion
+            }
+        });
+        latch.await(); // Waits for setup completion
+    }
+
+    // Tests invalid move due to same-color adjacency
     @Test
     void testInvalidAdjacentSameColor() {
-        // Place a Red stone at the center of the board (board indices 6,6)
-        hexStatus[6][6] = "Red";
+        hexStatus[6][6] = "Red"; // Places Red stone at center
+        boolean isValid = moveValidator.isValidMove(1, 0, hexStatus, "Red"); // Tries adjacent Red stone
+        assertFalse(isValid, "Adjacent same color without capture should be invalid"); // Checks invalid move
+    }
 
-        // Now, try placing another Red stone on an adjacent hex (board indices 7,6) to simulate an invalid move
-        boolean isValid = moveValidator.isValidMove(1, 0, hexStatus, "Red");
+    // Tests invalid move due to occupied hex
+    @Test
+    void testInvalidMoveOccupiedHex() {
+        hexStatus[6][6] = "Red"; // Places Red stone at center
+        boolean isValid = moveValidator.isValidMove(0, 0, hexStatus, "Blue"); // Tries same hex
+        assertFalse(isValid, "Placing a stone in an occupied hex should be invalid"); // Checks invalid move
+    }
 
-        // Assert that the move is invalid (should return false) because two stones of the same color cannot be adjacent unless it's a capture
-        assertFalse(isValid, "Adjacent same color without capture should be invalid");
+    // Tests valid move in empty hex
+    @Test
+    void testValidMoveEmptyHex() {
+        boolean isValid = moveValidator.isValidMove(0, 0, hexStatus, "Red"); // Tries empty hex
+        assertTrue(isValid, "Placing a stone in an empty hex should be valid"); // Checks valid move
+    }
+
+    // Tests valid move with capture
+    @Test
+    void testValidMoveWithCapture() {
+        hexStatus[6][6] = "Blue"; // Places Blue stone at center
+        hexStatus[7][6] = "Red"; // Places Red stone East
+        hexStatus[5][6] = "Red"; // Places Red stone West
+        hexStatus[6][5] = "Red"; // Places Red stone North
+        hexStatus[6][7] = "Red"; // Places Red stone South
+        hexStatus[7][5] = "Red"; // Places Red stone Northeast
+        boolean isValid = moveValidator.isValidMove(-1, 1, hexStatus, "Red"); // Tries Southeast move
+        assertTrue(isValid, "Move resulting in a capture should be valid"); // Checks valid move
     }
 }
