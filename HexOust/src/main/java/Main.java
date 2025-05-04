@@ -1,75 +1,115 @@
-import javafx.application.Application; // Base class for JavaFX applications
-import javafx.scene.Scene; // Represents the game window
-import javafx.scene.canvas.Canvas; // Used to draw the hex board
-import javafx.scene.canvas.GraphicsContext; // Drawing functions for canvas
-import javafx.scene.control.Button; // Used for restart and exit buttons
-import javafx.scene.control.Label; // Used for turn and win indicators
-import javafx.scene.input.MouseEvent; // Handles mouse clicks
-import javafx.scene.layout.BorderPane; // Arranges UI elements
-import javafx.scene.layout.HBox; // Horizontal layout for buttons
-import javafx.scene.layout.StackPane; // Stacks UI elements
-import javafx.geometry.Pos; // Sets alignment for layouts
-import javafx.stage.Stage; // Main application window
+import javafx.application.Application;         // Imports the base class for JavaFX applications
+import javafx.geometry.Insets;                // Imports class for defining padding and margins
+import javafx.geometry.Pos;                   // Imports class for specifying alignment constants
+import javafx.scene.Scene;                    // Imports class representing the JavaFX scene graph
+import javafx.scene.canvas.Canvas;            // Imports class for drawing surfaces
+import javafx.scene.canvas.GraphicsContext;   // Imports class providing drawing operations
+import javafx.scene.control.Button;           // Imports class for interactive button controls
+import javafx.scene.control.Label;            // Imports class for displaying text elements
+import javafx.scene.input.MouseEvent;         // Imports class for mouse event handling
+import javafx.scene.layout.BorderPane;        // Imports class for arranging nodes in five regions
+import javafx.scene.layout.StackPane;         // Imports class for stacking nodes on top of each other
+import javafx.scene.layout.VBox;              // Imports class for vertical box layout
+import javafx.scene.text.Font;                // Imports class for loading and using custom fonts
+import javafx.stage.Stage;                    // Imports class representing the primary window
 
-// Main class for the HexOust game
+// Declares the main application class for HexOust
 public class Main extends Application {
-    private Board board; // Board containing the hexagonal grid
-    private Player player; // Player instance for turn management
-    private GameManager gameManager; // Manages game logic
+    private Board board;                       // Holds the hexagonal grid representation
+    private Player player;                     // Manages the current player state
+    private GameManager gameManager;           // Coordinates the game logic
 
-    // Entry point for the application
+    // Defines the entry point for launching the JavaFX application
     public static void main(String[] args) {
-        launch(args); // Starts the JavaFX application
+        launch(args);                          // Invokes JavaFX runtime to start the application
     }
 
-    // Sets up the game UI and logic
+    // Configures and displays the primary stage and its contents
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("HexOust - Sprint 4"); // Sets window title
+        stage.setTitle("HexOust - Sprint 4");  // Sets the title of the application window
 
-        Canvas canvas = new Canvas(800, 800); // Creates canvas for drawing
-        GraphicsContext gc = canvas.getGraphicsContext2D(); // Gets GraphicsContext for drawing
+        // Loads the Montserrat font from application resources
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/Montserrat-Regular.ttf"),
+                12
+        );
 
-        Label turnIndicator = new Label(); // Creates turn indicator label
-        Renderer renderer = new Renderer(turnIndicator, stage); // Initializes Renderer
-        renderer.updateTurn("Red"); // Sets initial turn to Red
+        Canvas canvas = new Canvas(800, 800);             // Creates a drawing canvas of fixed size
+        GraphicsContext gc = canvas.getGraphicsContext2D(); // Obtains the graphics context for rendering
 
-        player = new Player(); // Initializes Player
-        gameManager = new GameManager(board, player, renderer, stage, gc); // Initializes GameManager
-        board = new Board(renderer, player, gameManager); // Initializes Board
-        gameManager.setBoard(board); // Sets Board in GameManager
-        board.resetBoard(); // Resets board state
-        board.render(gc); // Renders initial board
+        Label turnIndicator = new Label();                // Instantiates the label for displaying turn prompts
+        Renderer renderer = new Renderer(turnIndicator, stage); // Creates the renderer with the turn label and stage
+        renderer.updateTurn("Red");                       // Initializes the turn indicator to "Red"
 
-        InputHandler inputHandler = new InputHandler(stage, gc, gameManager, board, player); // Initializes InputHandler
-        Button restartButton = inputHandler.getRestartButton(); // Gets restart button
-        Button exitButton = inputHandler.getExitButton(); // Gets exit button
+        player = new Player();                            // Constructs the player management object
+        gameManager = new GameManager(board, player, renderer, stage, gc); // Constructs the game manager
+        board = new Board(renderer, player, gameManager); // Constructs the board with renderer and game logic
+        gameManager.setBoard(board);                      // Assigns the board instance to the game manager
+        board.resetBoard();                               // Resets all board tiles to their initial state
+        board.render(gc);                                 // Renders the empty board onto the canvas
 
-        StackPane topPane = new StackPane(); // Creates top pane for indicators
-        topPane.getChildren().addAll(turnIndicator, renderer.getWinMessageLabel()); // Adds turn and win labels
+        InputHandler inputHandler = new InputHandler(stage, gc, gameManager, board, player); // Initializes input handling
+        Button restartButton = inputHandler.getRestartButton(); // Retrieves the restart button control
+        Button exitButton = inputHandler.getExitButton();   // Retrieves the exit button control
 
-        HBox restartContainer = new HBox(); // Creates container for restart button
-        restartContainer.setAlignment(Pos.BOTTOM_LEFT); // Aligns restart button left
-        restartContainer.getChildren().add(restartButton); // Adds restart button
+        // Constructs the header area containing welcome text, credits, and turn indicator
+        Label welcome = new Label("Welcome to HexOust");   // Creates the title label for the game header
+        welcome.setStyle(                                  // Applies font size, weight, and color to the title
+                "-fx-font-size: 24px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #ECF0F1;"
+        );
 
-        HBox exitContainer = new HBox(); // Creates container for exit button
-        exitContainer.setAlignment(Pos.BOTTOM_RIGHT); // Aligns exit button right
-        exitContainer.getChildren().add(exitButton); // Adds exit button
+        Label credit = new Label("Created by Bit Warriors"); // Creates the credit label for the team name
+        credit.setStyle(                                    // Applies styling to the credit label
+                "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #BDC3C7;"
+        );
 
-        BorderPane root = new BorderPane(); // Creates main layout
-        root.setTop(topPane); // Places indicators at top
-        root.setLeft(restartContainer); // Places restart button at bottom-left
-        root.setRight(exitContainer); // Places exit button at bottom-right
-        root.setCenter(canvas); // Places canvas in center
+        turnIndicator.setStyle(                             // Styles the turn indicator label for emphasis
+                "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #E74C3C;"
+        );
 
-        canvas.setOnMouseClicked((MouseEvent event) -> { // Sets mouse click handler
-            double x = event.getX(); // Gets x-coordinate of click
-            double y = event.getY(); // Gets y-coordinate of click
-            gameManager.makeMove(gc, x, y); // Processes move
+        VBox header = new VBox(5, welcome, credit, turnIndicator, renderer.getWinMessageLabel()); // Arranges header nodes vertically
+        header.setAlignment(Pos.CENTER);                   // Centers all nodes within the header box
+        header.setPadding(new Insets(10));                 // Adds uniform padding around the header content
+
+        BorderPane mainPane = new BorderPane();            // Creates the primary layout container
+        mainPane.setTop(header);                           // Positions the header at the top region
+        mainPane.setCenter(canvas);                        // Positions the canvas in the center region
+
+        // Applies an "old money" dark green backdrop and sets default font
+        mainPane.setStyle(
+                "-fx-background-color: #013220;" +             // Uses a deep forest green for the background
+                        "-fx-font-family: 'Montserrat';"               // Sets Montserrat as the default UI font
+        );
+
+        // Registers a mouse click handler on the canvas to process game moves
+        canvas.setOnMouseClicked((MouseEvent event) -> {
+            double x = event.getX();                       // Captures the x-coordinate of the click
+            double y = event.getY();                       // Captures the y-coordinate of the click
+            gameManager.makeMove(gc, x, y);                // Delegates the move processing to the game manager
         });
 
-        Scene scene = new Scene(root, 1000, 900); // Creates window scene
-        stage.setScene(scene); // Sets scene to stage
-        stage.show(); // Shows window
+        // Wraps the main pane in a StackPane to allow floating of control buttons
+        StackPane root = new StackPane(mainPane);
+
+        // Positions the restart button slightly above the bottom-left corner
+        StackPane.setAlignment(restartButton, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(restartButton, new Insets(0, 0, 30, 30));
+        root.getChildren().add(restartButton);
+
+        // Positions the exit button slightly above the bottom-right corner
+        StackPane.setAlignment(exitButton, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(exitButton, new Insets(0, 30, 30, 0));
+        root.getChildren().add(exitButton);
+
+        Scene scene = new Scene(root, 1000, 900);           // Creates the scene with fixed dimensions
+        stage.setScene(scene);                             // Sets the scene onto the stage
+        stage.show();                                      // Displays the stage to the user
     }
 }
