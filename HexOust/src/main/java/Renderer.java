@@ -46,7 +46,7 @@ public class Renderer {
     public void showWinMessage(String winner) {
         turnIndicator.setVisible(false); // Hides turn indicator
         winMessageLabel.setText(winner + " Wins!"); // Sets win message
-        winMessageLabel.setTextFill(winner.equals("Blue") ? Color.BLUE : Color.RED); // Sets color based on winner
+        winMessageLabel.setTextFill(winner.equals("Blue") ? Color.LIGHTBLUE : Color.RED); // Sets color based on winner
         winMessageLabel.setVisible(true); // Shows win message
     }
 
@@ -73,7 +73,7 @@ public class Renderer {
      */
     public void updateTurn(String player) {
         turnIndicator.setText(player + "'s Turn - To Make a Move"); // Sets turn text
-        turnIndicator.setTextFill(player.equals("Red") ? Color.RED : Color.BLUE); // Sets color based on player
+        turnIndicator.setTextFill(player.equals("Red") ? Color.RED : Color.LIGHTBLUE); // Sets color based on player
     }
 
     /**
