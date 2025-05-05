@@ -37,7 +37,7 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("HexOust - Sprint 4");  // Set the window title
+        stage.setTitle("HexOust");  // Set the window title
 
         // Load the Montserrat font from the resources for consistent styling
         Font.loadFont(getClass().getResourceAsStream("/fonts/Montserrat-Regular.ttf"), 12);

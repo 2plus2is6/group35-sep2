@@ -19,6 +19,43 @@ public class CaptureHandler {
     }
 
     /**
+     * Checks for captures after a move and removes captured stones if any.
+     * @param q The q-coordinate of the move in cube coordinates
+     * @param r The r-coordinate of the move in cube coordinates
+     * @param hexStatus The current state of the board
+     * @param currentPlayer The player making the move ("Red" or "Blue")
+     * @param gc The graphics context for updating the UI
+     * @return True if a capture occurred, false otherwise
+     */
+    public boolean checkAndCapture(double q, double r, String[][] hexStatus, String currentPlayer, GraphicsContext gc) {
+        int boardQ = (int) q + 6; // Convert q to board index
+        int boardR = (int) r + 6; // Convert r to board index
+        boolean[][] visited = new boolean[hexStatus.length][hexStatus[0].length]; // Track visited hexes
+        // Calculate the player's group size starting from the placed stone
+        int newGroupSize = calculateGroupSize(boardQ, boardR, hexStatus, currentPlayer, visited);
+        List<int[]> capturedStones = new ArrayList<>(); // List to store captured stones
+        for (int[] dir : directions()) { // Check all adjacent hexes
+            int nq = boardQ + dir[0]; // Calculate adjacent q index
+            int nr = boardR + dir[1]; // Calculate adjacent r index
+            // Check if the adjacent hex has an opponent's stone
+            if (isValid(nq, nr, hexStatus) && hexStatus[nq][nr] != null &&
+                    !hexStatus[nq][nr].equals(currentPlayer)) {
+                List<int[]> group = new ArrayList<>(); // List to store opponent's group
+                boolean[][] groupVisited = new boolean[hexStatus.length][hexStatus[0].length]; // Track visited hexes
+                findGroupDFS(nq, nr, hexStatus[nq][nr], hexStatus, group, groupVisited); // Find opponent's group
+                if (group.size() > 0 && group.size() < newGroupSize) { // If opponent's group is smaller
+                    capturedStones.addAll(group); // Add the group to captured stones
+                }
+            }
+        }
+        if (!capturedStones.isEmpty()) { // If there are stones to capture
+            board.removeStones(capturedStones, gc); // Remove the captured stones from the board
+            return true; // Indicate a capture occurred
+        }
+        return false; // No capture occurred
+    }
+
+    /**
      * Checks if a move at the given coordinates would result in a capture.
      * Simulates the move and compares group sizes to determine if a capture is possible.
      * @param q The q-coordinate of the move in cube coordinates
@@ -68,42 +105,6 @@ public class CaptureHandler {
         return copy; // Return the copied array
     }
 
-    /**
-     * Checks for captures after a move and removes captured stones if any.
-     * @param q The q-coordinate of the move in cube coordinates
-     * @param r The r-coordinate of the move in cube coordinates
-     * @param hexStatus The current state of the board
-     * @param currentPlayer The player making the move ("Red" or "Blue")
-     * @param gc The graphics context for updating the UI
-     * @return True if a capture occurred, false otherwise
-     */
-    public boolean checkAndCapture(double q, double r, String[][] hexStatus, String currentPlayer, GraphicsContext gc) {
-        int boardQ = (int) q + 6; // Convert q to board index
-        int boardR = (int) r + 6; // Convert r to board index
-        boolean[][] visited = new boolean[hexStatus.length][hexStatus[0].length]; // Track visited hexes
-        // Calculate the player's group size starting from the placed stone
-        int newGroupSize = calculateGroupSize(boardQ, boardR, hexStatus, currentPlayer, visited);
-        List<int[]> capturedStones = new ArrayList<>(); // List to store captured stones
-        for (int[] dir : directions()) { // Check all adjacent hexes
-            int nq = boardQ + dir[0]; // Calculate adjacent q index
-            int nr = boardR + dir[1]; // Calculate adjacent r index
-            // Check if the adjacent hex has an opponent's stone
-            if (isValid(nq, nr, hexStatus) && hexStatus[nq][nr] != null &&
-                    !hexStatus[nq][nr].equals(currentPlayer)) {
-                List<int[]> group = new ArrayList<>(); // List to store opponent's group
-                boolean[][] groupVisited = new boolean[hexStatus.length][hexStatus[0].length]; // Track visited hexes
-                findGroupDFS(nq, nr, hexStatus[nq][nr], hexStatus, group, groupVisited); // Find opponent's group
-                if (group.size() > 0 && group.size() < newGroupSize) { // If opponent's group is smaller
-                    capturedStones.addAll(group); // Add the group to captured stones
-                }
-            }
-        }
-        if (!capturedStones.isEmpty()) { // If there are stones to capture
-            board.removeStones(capturedStones, gc); // Remove the captured stones from the board
-            return true; // Indicate a capture occurred
-        }
-        return false; // No capture occurred
-    }
 
     /**
      * Finds a group of same-colored stones using depth-first search (DFS).

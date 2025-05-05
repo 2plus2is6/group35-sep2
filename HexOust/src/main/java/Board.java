@@ -44,36 +44,22 @@ public class Board {
         drawHexagons(gc, hexagons); // Draws hexagons
     }
 
-    /**
-     * Generates the corners of all hexagons in the grid.
-     * @return A list of hexagon corners, where each hexagon is a list of Points
-     */
-    private ArrayList<ArrayList<Point>> generateHexagons() {
-        ArrayList<ArrayList<Point>> hexagons = new ArrayList<>(); // Stores hexagon corners
-        for (int q = -BASE; q <= BASE; q++) { // Loops through q coordinates
-            for (int r = -BASE; r <= BASE; r++) { // Loops through r coordinates
-                int s = -q - r; // Calculates s
-                if (Math.abs(s) <= BASE) { // Checks valid hex
-                    HexCube hex = new HexCube(q, r, s); // Creates hex
-                    ArrayList<Point> corners = HexCube.polygonCorners(hex, CENTER_X, CENTER_Y, HEX_SIZE); // Gets corners
-                    hexagons.add(corners); // Adds corners
-                }
-            }
-        }
-        return hexagons; // Returns hexagons
-    }
+
+
 
     /**
-     * Draws all hexagons on the canvas with a specified color.
-     * @param gc The graphics context for drawing
-     * @param hexagons The list of hexagons, each represented by its corners
+     * Removes captured stones from the board and updates the UI.
+     * @param capturedStones List of coordinates of stones to remove
+     * @param gc The graphics context for redrawing the hexes
      */
-    private void drawHexagons(GraphicsContext gc, ArrayList<ArrayList<Point>> hexagons) {
-        for (ArrayList<Point> hexagon : hexagons) { // Loops through hexagons
-            drawHexagon(gc, hexagon, Color.LIGHTGRAY); // Draws as light gray
+    public void removeStones(List<int[]> capturedStones, GraphicsContext gc) {
+        for (int[] hex : capturedStones) { // Iterate over captured stones
+            hexStatus[hex[0]][hex[1]] = null; // Clear the stone from the board
+            HexCube hexCube = createHexCubeFromIndices(hex[0], hex[1]); // Convert indices to hex
+            ArrayList<Point> corners = HexCube.polygonCorners(hexCube, CENTER_X, CENTER_Y, HEX_SIZE); // Gets corners
+            drawHexagon(gc, corners, Color.LIGHTGRAY); // Redraws as empty
         }
     }
-
     /**
      * Places a stone at the clicked position if the move is valid.
      * @param gc The graphics context for drawing the stone
@@ -97,6 +83,36 @@ public class Board {
         return true; // Return true if stone is placed successfully
     }
 
+    /**
+     * Draws all hexagons on the canvas with a specified color.
+     * @param gc The graphics context for drawing
+     * @param hexagons The list of hexagons, each represented by its corners
+     */
+    private void drawHexagons(GraphicsContext gc, ArrayList<ArrayList<Point>> hexagons) {
+        for (ArrayList<Point> hexagon : hexagons) { // Loops through hexagons
+            drawHexagon(gc, hexagon, Color.LIGHTGRAY); // Draws as light gray
+        }
+    }
+
+
+    /**
+     * Generates the corners of all hexagons in the grid.
+     * @return A list of hexagon corners, where each hexagon is a list of Points
+     */
+    private ArrayList<ArrayList<Point>> generateHexagons() {
+        ArrayList<ArrayList<Point>> hexagons = new ArrayList<>(); // Stores hexagon corners
+        for (int q = -BASE; q <= BASE; q++) { // Loops through q coordinates
+            for (int r = -BASE; r <= BASE; r++) { // Loops through r coordinates
+                int s = -q - r; // Calculates s
+                if (Math.abs(s) <= BASE) { // Checks valid hex
+                    HexCube hex = new HexCube(q, r, s); // Creates hex
+                    ArrayList<Point> corners = HexCube.polygonCorners(hex, CENTER_X, CENTER_Y, HEX_SIZE); // Gets corners
+                    hexagons.add(corners); // Adds corners
+                }
+            }
+        }
+        return hexagons; // Returns hexagons
+    }
     /**
      * Checks if a hex is within the board's bounds.
      * @param hex The hex to check, in cube coordinates
@@ -167,19 +183,7 @@ public class Board {
     }
 
 
-    /**
-     * Removes captured stones from the board and updates the UI.
-     * @param capturedStones List of coordinates of stones to remove
-     * @param gc The graphics context for redrawing the hexes
-     */
-    public void removeStones(List<int[]> capturedStones, GraphicsContext gc) {
-        for (int[] hex : capturedStones) { // Iterate over captured stones
-            hexStatus[hex[0]][hex[1]] = null; // Clear the stone from the board
-            HexCube hexCube = createHexCubeFromIndices(hex[0], hex[1]); // Convert indices to hex
-            ArrayList<Point> corners = HexCube.polygonCorners(hexCube, CENTER_X, CENTER_Y, HEX_SIZE); // Gets corners
-            drawHexagon(gc, corners, Color.LIGHTGRAY); // Redraws as empty
-        }
-    }
+
 
     /**
      * Converts board indices to a HexCube object.

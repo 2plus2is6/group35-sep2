@@ -37,26 +37,6 @@ public class GameManager {
         this.moveValidator = new MoveValidator(captureHandler); // Initialize move validator
         this.opponentHadStones = false; // Set initial opponent stone flag
     }
-
-    /**
-     * Sets the game board and updates related dependencies.
-     * @param board The game board to set
-     */
-    public void setBoard(Board board) {
-        this.board = board; // Update the board reference
-        this.captureHandler.board = board; // Update the capture handler's board reference
-    }
-
-    /**
-     * Resets the game state to start a new game.
-     */
-    public void reset() {
-        opponentHadStones = false; // Reset the opponent stone history
-        renderer.hideWinMessage(); // Hide any existing win message
-        renderer.showTurnIndicator(); // Show the turn indicator
-        renderer.updateTurn("Red"); // Set the starting player to Red
-    }
-
     /**
      * Processes a player's move based on the click coordinates.
      * @param gc The graphics context for drawing the move
@@ -74,28 +54,6 @@ public class GameManager {
         renderer.clearInvalidMoveMessage(); // Clear invalid message on valid move
         executeMove(gc, x, y, currentPlayer); // Execute the valid move
         handlePostMoveLogic(currentPlayer); // Handle captures and game end conditions
-    }
-
-    /**
-     * Validates if a move is allowed at the given coordinates.
-     * @param q The q-coordinate of the move
-     * @param r The r-coordinate of the move
-     * @param currentPlayer The player making the move ("Red" or "Blue")
-     * @return True if the move is valid, false otherwise
-     */
-    private boolean isValidMove(double q, double r, String currentPlayer) {
-        return moveValidator.isValidMove(q, r, board.getHexStatus(), currentPlayer); // Delegate to validator
-    }
-
-    /**
-     * Executes a move by placing a stone on the board.
-     * @param gc The graphics context for drawing
-     * @param x The x-coordinate of the click
-     * @param y The y-coordinate of the click
-     * @param currentPlayer The player making the move
-     */
-    private void executeMove(GraphicsContext gc, double x, double y, String currentPlayer) {
-        board.fillHex(gc, x, y, currentPlayer); // Place the stone on the board
     }
 
     /**
@@ -123,6 +81,63 @@ public class GameManager {
         }
         board.updateTurnIndicator(); // Update the turn indicator in the UI
     }
+    /**
+     * Ends the game and displays a win dialog with restart or exit options.
+     * @param winner The winning player ("Red" or "Blue")
+     */
+    private void endGame(String winner) {
+        renderer.showWinMessage(winner); // Display the win message
+        Alert alert = createGameOverAlert(); // Create the game-over dialog
+        Optional<ButtonType> result = alert.showAndWait(); // Show the dialog and get the result
+        if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.YES) { // Check for restart
+            restartGame(); // Restart the game
+        } else {
+            Platform.exit(); // Exit the application
+        }
+    }
+
+    /**
+     * Sets the game board and updates related dependencies.
+     * @param board The game board to set
+     */
+    public void setBoard(Board board) {
+        this.board = board; // Update the board reference
+        this.captureHandler.board = board; // Update the capture handler's board reference
+    }
+
+    /**
+     * Resets the game state to start a new game.
+     */
+    public void reset() {
+        opponentHadStones = false; // Reset the opponent stone history
+        renderer.hideWinMessage(); // Hide any existing win message
+        renderer.showTurnIndicator(); // Show the turn indicator
+        renderer.updateTurn("Red"); // Set the starting player to Red
+    }
+
+
+    /**
+     * Validates if a move is allowed at the given coordinates.
+     * @param q The q-coordinate of the move
+     * @param r The r-coordinate of the move
+     * @param currentPlayer The player making the move ("Red" or "Blue")
+     * @return True if the move is valid, false otherwise
+     */
+    private boolean isValidMove(double q, double r, String currentPlayer) {
+        return moveValidator.isValidMove(q, r, board.getHexStatus(), currentPlayer); // Delegate to validator
+    }
+
+    /**
+     * Executes a move by placing a stone on the board.
+     * @param gc The graphics context for drawing
+     * @param x The x-coordinate of the click
+     * @param y The y-coordinate of the click
+     * @param currentPlayer The player making the move
+     */
+    private void executeMove(GraphicsContext gc, double x, double y, String currentPlayer) {
+        board.fillHex(gc, x, y, currentPlayer); // Place the stone on the board
+    }
+
 
     /**
      * Checks if the current player has won the game.
@@ -145,20 +160,7 @@ public class GameManager {
         return opponentHadStones && !opponentNowHasStones;
     }
 
-    /**
-     * Ends the game and displays a win dialog with restart or exit options.
-     * @param winner The winning player ("Red" or "Blue")
-     */
-    private void endGame(String winner) {
-        renderer.showWinMessage(winner); // Display the win message
-        Alert alert = createGameOverAlert(); // Create the game-over dialog
-        Optional<ButtonType> result = alert.showAndWait(); // Show the dialog and get the result
-        if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.YES) { // Check for restart
-            restartGame(); // Restart the game
-        } else {
-            Platform.exit(); // Exit the application
-        }
-    }
+
 
     /**
      * Creates a dialog for the game-over state with restart and exit options.
