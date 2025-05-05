@@ -13,103 +13,112 @@ import javafx.scene.layout.VBox;              // Imports class for vertical box 
 import javafx.scene.text.Font;                // Imports class for loading and using custom fonts
 import javafx.stage.Stage;                    // Imports class representing the primary window
 
-// Declares the main application class for HexOust
+/**
+ * The main application class for HexOust, a hexagonal strategy game.
+ * Sets up the JavaFX application, initializes game components, and handles the UI layout.
+ */
 public class Main extends Application {
     private Board board;                       // Holds the hexagonal grid representation
     private Player player;                     // Manages the current player state
     private GameManager gameManager;           // Coordinates the game logic
 
-    // Defines the entry point for launching the JavaFX application
+    /**
+     * The entry point for launching the HexOust JavaFX application.
+     * @param args Command-line arguments passed to the application
+     */
     public static void main(String[] args) {
-        launch(args);                          // Invokes JavaFX runtime to start the application
+        launch(args);                          // Start the JavaFX runtime
     }
 
-    // Configures and displays the primary stage and its contents
+    /**
+     * Initializes and displays the primary stage with the game UI.
+     * @param stage The primary stage for the application
+     * @throws Exception If an error occurs during initialization
+     */
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("HexOust - Sprint 4");  // Sets the title of the application window
+        stage.setTitle("HexOust - Sprint 4");  // Set the window title
 
-        // Loads the Montserrat font from application resources
-        Font.loadFont(
-                getClass().getResourceAsStream("/fonts/Montserrat-Regular.ttf"),
-                12
-        );
+        // Load the Montserrat font from the resources for consistent styling
+        Font.loadFont(getClass().getResourceAsStream("/fonts/Montserrat-Regular.ttf"), 12);
 
-        Canvas canvas = new Canvas(800, 800);             // Creates a drawing canvas of fixed size
-        GraphicsContext gc = canvas.getGraphicsContext2D(); // Obtains the graphics context for rendering
+        Canvas canvas = new Canvas(800, 800);             // Create a canvas for drawing the board
+        GraphicsContext gc = canvas.getGraphicsContext2D(); // Get the graphics context for rendering
 
-        Label turnIndicator = new Label();                // Instantiates the label for displaying turn prompts
-        Renderer renderer = new Renderer(turnIndicator, stage); // Creates the renderer with the turn label and stage
-        renderer.updateTurn("Red");                       // Initializes the turn indicator to "Red"
+        Label turnIndicator = new Label();                // Create a label to show the current turn
+        Renderer renderer = new Renderer(turnIndicator, stage); // Initialize the renderer
+        renderer.updateTurn("Red");                       // Set the initial turn to Red
 
-        player = new Player();                            // Constructs the player management object
-        gameManager = new GameManager(board, player, renderer, stage, gc); // Constructs the game manager
-        board = new Board(renderer, player, gameManager); // Constructs the board with renderer and game logic
-        gameManager.setBoard(board);                      // Assigns the board instance to the game manager
-        board.resetBoard();                               // Resets all board tiles to their initial state
-        board.render(gc);                                 // Renders the empty board onto the canvas
+        player = new Player();                            // Initialize the player manager
+        gameManager = new GameManager(board, player, renderer, stage, gc); // Initialize the game manager
+        board = new Board(renderer, player, gameManager); // Initialize the board
+        gameManager.setBoard(board);                      // Link the board to the game manager
+        board.resetBoard();                               // Clear the board to start fresh
+        board.render(gc);                                 // Draw the empty board
 
-        InputHandler inputHandler = new InputHandler(stage, gc, gameManager, board, player); // Initializes input handling
-        Button restartButton = inputHandler.getRestartButton(); // Retrieves the restart button control
-        Button exitButton = inputHandler.getExitButton();   // Retrieves the exit button control
+        InputHandler inputHandler = new InputHandler(stage, gc, gameManager, board, player); // Set up input handling
+        Button restartButton = inputHandler.getRestartButton(); // Get the restart button
+        Button exitButton = inputHandler.getExitButton();   // Get the exit button
 
-        // Constructs the header area containing welcome text, credits, and turn indicator
-        Label welcome = new Label("Welcome to HexOust");   // Creates the title label for the game header
-        welcome.setStyle(                                  // Applies font size, weight, and color to the title
+        // Create the welcome label for the header
+        Label welcome = new Label("Welcome to HexOust");
+        welcome.setStyle(                                  // Style the welcome text
                 "-fx-font-size: 24px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: #ECF0F1;"
         );
 
-        Label credit = new Label("Created by Bit Warriors"); // Creates the credit label for the team name
-        credit.setStyle(                                    // Applies styling to the credit label
+        // Create the credit label for the team
+        Label credit = new Label("Created by Bit Warriors");
+        credit.setStyle(                                    // Style the credit text
                 "-fx-font-size: 14px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: #BDC3C7;"
         );
 
-        turnIndicator.setStyle(                             // Styles the turn indicator label for emphasis
+        turnIndicator.setStyle(                             // Style the turn indicator
                 "-fx-font-size: 18px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: #E74C3C;"
         );
 
-        VBox header = new VBox(5, welcome, credit, turnIndicator, renderer.getWinMessageLabel()); // Arranges header nodes vertically
-        header.setAlignment(Pos.CENTER);                   // Centers all nodes within the header box
-        header.setPadding(new Insets(10));                 // Adds uniform padding around the header content
+        // Arrange header elements vertically with spacing
+        VBox header = new VBox(5, welcome, credit, turnIndicator, renderer.getWinMessageLabel());
+        header.setAlignment(Pos.CENTER);                   // Center the header content
+        header.setPadding(new Insets(10));                 // Add padding around the header
 
-        BorderPane mainPane = new BorderPane();            // Creates the primary layout container
-        mainPane.setTop(header);                           // Positions the header at the top region
-        mainPane.setCenter(canvas);                        // Positions the canvas in the center region
+        BorderPane mainPane = new BorderPane();            // Create the main layout
+        mainPane.setTop(header);                           // Place the header at the top
+        mainPane.setCenter(canvas);                        // Place the canvas in the center
 
-        // Applies an "old money" dark green backdrop and sets default font
+        // Apply a dark green background and set the default font
         mainPane.setStyle(
-                "-fx-background-color: #013220;" +             // Uses a deep forest green for the background
-                        "-fx-font-family: 'Montserrat';"               // Sets Montserrat as the default UI font
+                "-fx-background-color: #013220;" +             // Set deep forest green background
+                        "-fx-font-family: 'Montserrat';"               // Set Montserrat as default font
         );
 
-        // Registers a mouse click handler on the canvas to process game moves
+        // Add mouse click handler to process game moves
         canvas.setOnMouseClicked((MouseEvent event) -> {
-            double x = event.getX();                       // Captures the x-coordinate of the click
-            double y = event.getY();                       // Captures the y-coordinate of the click
-            gameManager.makeMove(gc, x, y);                // Delegates the move processing to the game manager
+            double x = event.getX();                       // Get the x-coordinate of the click
+            double y = event.getY();                       // Get the y-coordinate of the click
+            gameManager.makeMove(gc, x, y);                // Process the move
         });
 
-        // Wraps the main pane in a StackPane to allow floating of control buttons
+        // Wrap the main pane in a StackPane for button positioning
         StackPane root = new StackPane(mainPane);
 
-        // Positions the restart button slightly above the bottom-left corner
+        // Position the restart button near the bottom-left
         StackPane.setAlignment(restartButton, Pos.BOTTOM_LEFT);
         StackPane.setMargin(restartButton, new Insets(0, 0, 30, 30));
         root.getChildren().add(restartButton);
 
-        // Positions the exit button slightly above the bottom-right corner
+        // Position the exit button near the bottom-right
         StackPane.setAlignment(exitButton, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(exitButton, new Insets(0, 30, 30, 0));
         root.getChildren().add(exitButton);
 
-        Scene scene = new Scene(root, 1000, 900);           // Creates the scene with fixed dimensions
-        stage.setScene(scene);                             // Sets the scene onto the stage
-        stage.show();                                      // Displays the stage to the user
+        Scene scene = new Scene(root, 1000, 900);           // Create the scene with specified size
+        stage.setScene(scene);                             // Set the scene on the stage
+        stage.show();                                      // Display the window
     }
 }

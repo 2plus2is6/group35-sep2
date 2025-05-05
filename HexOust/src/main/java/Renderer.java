@@ -5,83 +5,89 @@ import javafx.scene.text.FontWeight; // Sets font weight
 import javafx.stage.Stage; // Main application window
 
 /**
- * Manages rendering of UI elements like turn indicators and win messages.
+ * Manages rendering of UI elements for the HexOust game, such as turn indicators and win messages.
+ * Updates the visual state of labels based on game progress.
  */
 public class Renderer {
-    private final Label turnIndicator; // Label for turn display
-    private final Label winMessageLabel; // Label for win message
-    private final Stage stage; // Reference to main window
+    private final Label turnIndicator; // Label to display the current player's turn
+    private final Label winMessageLabel; // Label to display the win message
+    private final Stage stage; // Reference to the main application window
 
     /**
-     * Constructs a Renderer with a turn indicator and stage.
-     * @param turnIndicator Label for displaying current player's turn
-     * @param stage Main application window
+     * Constructs a Renderer with the specified turn indicator and stage.
+     * @param turnIndicator The label for displaying the current player's turn
+     * @param stage The main application window
      */
     public Renderer(Label turnIndicator, Stage stage) {
-        this.turnIndicator = turnIndicator; // Assigns turn indicator
-        this.stage = stage; // Assigns Stage
-        this.winMessageLabel = new Label(); // Creates win message label
-        initializeTurnIndicator(); // Sets up turn indicator
-        initializeWinMessageLabel(); // Sets up win message label
-    }
-
-    // Initializes turn indicator styling
-    private void initializeTurnIndicator() {
-        turnIndicator.setFont(Font.font("Arial", FontWeight.BOLD, 24)); // Sets turn font
-        turnIndicator.setTextFill(Color.RED); // Sets initial color
-        turnIndicator.setVisible(true); // Makes turn indicator visible
-    }
-
-    // Initializes win message label styling
-    private void initializeWinMessageLabel() {
-        winMessageLabel.setFont(Font.font("Arial", FontWeight.BOLD, 30)); // Sets win message font
-        winMessageLabel.setTextFill(Color.RED); // Sets default color
-        winMessageLabel.setVisible(false); // Hides win message initially
+        this.turnIndicator = turnIndicator; // Assign the turn indicator label
+        this.stage = stage; // Assign the stage reference
+        this.winMessageLabel = new Label(); // Create the win message label
+        initializeTurnIndicator(); // Set up the turn indicator styling
+        initializeWinMessageLabel(); // Set up the win message label styling
     }
 
     /**
-     * Displays the win message with color based on the winner.
+     * Initializes the styling for the turn indicator label.
+     */
+    private void initializeTurnIndicator() {
+        turnIndicator.setFont(Font.font("Arial", FontWeight.BOLD, 24)); // Set font to Arial, bold, size 24
+        turnIndicator.setTextFill(Color.RED); // Set initial text color to red
+        turnIndicator.setVisible(true); // Make the turn indicator visible
+    }
+
+    /**
+     * Initializes the styling for the win message label.
+     */
+    private void initializeWinMessageLabel() {
+        winMessageLabel.setFont(Font.font("Arial", FontWeight.BOLD, 30)); // Set font to Arial, bold, size 30
+        winMessageLabel.setTextFill(Color.RED); // Set default text color to red
+        winMessageLabel.setVisible(false); // Hide the win message initially
+    }
+
+    /**
+     * Displays the win message with a color based on the winner.
+     * Hides the turn indicator while the win message is shown.
      * @param winner The winning player ("Red" or "Blue")
      */
     public void showWinMessage(String winner) {
-        turnIndicator.setVisible(false); // Hides turn indicator
-        winMessageLabel.setText(winner + " Wins!"); // Sets win message
-        winMessageLabel.setTextFill(winner.equals("Blue") ? Color.LIGHTBLUE : Color.RED); // Sets color based on winner
-        winMessageLabel.setVisible(true); // Shows win message
+        turnIndicator.setVisible(false); // Hide the turn indicator
+        winMessageLabel.setText(winner + " Wins!"); // Set the win message text
+        // Set the win message color based on the winner
+        winMessageLabel.setTextFill(winner.equals("Blue") ? Color.LIGHTBLUE : Color.RED);
+        winMessageLabel.setVisible(true); // Show the win message
     }
 
     /**
-     * Hides the win message and shows the turn indicator.
+     * Hides the win message and makes the turn indicator visible again.
      */
     public void hideWinMessage() {
-        winMessageLabel.setVisible(false); // Hides win message
-        turnIndicator.setVisible(true); // Shows turn indicator
-        turnIndicator.setTextFill(Color.RED); // Resets turn color
+        winMessageLabel.setVisible(false); // Hide the win message
+        turnIndicator.setVisible(true); // Show the turn indicator
+        turnIndicator.setTextFill(Color.RED); // Reset the turn indicator color to red
     }
 
     /**
-     * Gets the win message label.
+     * Retrieves the win message label for UI integration.
      * @return The win message label
      */
     public Label getWinMessageLabel() {
-        return winMessageLabel; // Returns win message label
+        return winMessageLabel; // Return the win message label
     }
 
     /**
-     * Updates the turn indicator with the current player's name and color.
+     * Updates the turn indicator with the current player's name and corresponding color.
      * @param player The current player ("Red" or "Blue")
      */
     public void updateTurn(String player) {
-        turnIndicator.setText(player + "'s Turn - To Make a Move"); // Sets turn text
-        turnIndicator.setTextFill(player.equals("Red") ? Color.RED : Color.LIGHTBLUE); // Sets color based on player
+        turnIndicator.setText(player + "'s Turn - To Make a Move"); // Update the turn text
+        // Set the turn indicator color based on the player
+        turnIndicator.setTextFill(player.equals("Red") ? Color.RED : Color.LIGHTBLUE);
     }
 
     /**
-     * Makes the turn indicator visible.
+     * Makes the turn indicator visible in the UI.
      */
     public void showTurnIndicator() {
-        turnIndicator.setVisible(true); // Makes turn indicator visible
+        turnIndicator.setVisible(true); // Make the turn indicator visible
     }
 }
-
-

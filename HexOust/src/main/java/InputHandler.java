@@ -1,16 +1,27 @@
-import javafx.scene.canvas.GraphicsContext; // Used for drawing on canvas
-import javafx.scene.control.Button; // Used for restart and exit buttons
+import javafx.scene.canvas.GraphicsContext; // Used for drawing on the canvas
+import javafx.scene.control.Button; // Used for creating interactive buttons
 import javafx.stage.Stage; // Main application window
 
-// Handles user input via buttons
+/**
+ * Handles user input through buttons in the HexOust game.
+ * Manages the restart and exit buttons, allowing players to reset the game or close the application.
+ */
 public class InputHandler {
-    private final Button exitButton; // Exit button
-    private final Button restartButton; // Restart button
+    private final Button exitButton; // Button to exit the game
+    private final Button restartButton; // Button to restart the game
 
-    // Constructor initializes buttons
+    /**
+     * Constructs an InputHandler with the specified dependencies and sets up button actions.
+     * @param stage The main application window for closing the game
+     * @param gc The graphics context for rendering the board
+     * @param gameManager The game manager for resetting game state
+     * @param board The game board for resetting and rendering
+     * @param player The player manager for resetting player state
+     */
     public InputHandler(Stage stage, GraphicsContext gc, GameManager gameManager, Board board, Player player) {
-        restartButton = new Button("Restart Game"); // Creates restart button
-        restartButton.setStyle( // Styles restart button
+        restartButton = new Button("Restart Game"); // Create the restart button
+        // Apply styling to the restart button for better visuals
+        restartButton.setStyle(
                 "-fx-font-size: 16px; " +
                         "-fx-background-color: PURPLE; " +
                         "-fx-text-fill: white; " +
@@ -18,8 +29,9 @@ public class InputHandler {
                         "-fx-border-radius: 5px; " +
                         "-fx-background-radius: 5px;"
         );
-        exitButton = new Button("Exit Game"); // Creates exit button
-        exitButton.setStyle( // Styles exit button
+        exitButton = new Button("Exit Game"); // Create the exit button
+        // Apply styling to the exit button for better visuals
+        exitButton.setStyle(
                 "-fx-font-size: 16px; " +
                         "-fx-background-color: RED; " +
                         "-fx-text-fill: white; " +
@@ -27,22 +39,30 @@ public class InputHandler {
                         "-fx-border-radius: 5px; " +
                         "-fx-background-radius: 5px;"
         );
-        restartButton.setOnAction(e -> { // Sets restart button action
-            board.resetBoard(); // Resets board
-            player.resetPlayer(); // Resets player
-            gameManager.reset(); // Resets GameManager
-            board.render(gc); // Renders board
+        // Define the action for the restart button
+        restartButton.setOnAction(e -> {
+            board.resetBoard(); // Clear the game board
+            player.resetPlayer(); // Reset the player state
+            gameManager.reset(); // Reset the game manager state
+            board.render(gc); // Redraw the board
         });
-        exitButton.setOnAction(e -> stage.close()); // Sets exit button action
+        // Define the action for the exit button
+        exitButton.setOnAction(e -> stage.close()); // Close the application window
     }
 
-    // Returns exit button
+    /**
+     * Retrieves the exit button for UI integration.
+     * @return The exit button
+     */
     public Button getExitButton() {
-        return exitButton; // Returns exit button
+        return exitButton; // Return the exit button
     }
 
-    // Returns restart button
+    /**
+     * Retrieves the restart button for UI integration.
+     * @return The restart button
+     */
     public Button getRestartButton() {
-        return restartButton; // Returns restart button
+        return restartButton; // Return the restart button
     }
 }

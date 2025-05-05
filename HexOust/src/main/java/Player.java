@@ -1,34 +1,48 @@
-// Manages player turns
+/**
+ * Manages player turns and extra turn logic for the HexOust game.
+ * Tracks the active player and handles turn switching and extra turn conditions.
+ */
 public class Player {
-    private String activePlayer; // Current player ("Red" or "Blue")
-    private static boolean extraTurn = false; // Tracks extra turn status
+    private String activePlayer; // The current player ("Red" or "Blue")
+    private static boolean extraTurn = false; // Flag to track if an extra turn is granted
 
-    // Constructor initializes Player
+    /**
+     * Constructs a Player with the initial player set to Red.
+     */
     public Player() {
-        activePlayer = "Red"; // Sets initial player to Red
+        activePlayer = "Red"; // Set the starting player to Red
     }
 
-    // Returns current player
+    /**
+     * Retrieves the current player.
+     * @return The current player ("Red" or "Blue")
+     */
     public String getCurrentPlayer() {
-        return activePlayer; // Returns active player
+        return activePlayer; // Return the current player
     }
 
-    // Switches player turns
+    /**
+     * Switches the turn to the other player unless an extra turn is active.
+     */
     public void switchTurn() {
-        if (!extraTurn) { // Checks if no extra turn
-            activePlayer = activePlayer.equals("Red") ? "Blue" : "Red"; // Toggles player
+        if (!extraTurn) { // Check if no extra turn is active
+            activePlayer = activePlayer.equals("Red") ? "Blue" : "Red"; // Toggle between Red and Blue
         }
-        extraTurn = false; // Resets extra turn flag
+        extraTurn = false; // Reset the extra turn flag
     }
 
-    // Grants an extra turn
+    /**
+     * Grants the current player an extra turn.
+     */
     public static void grantExtraTurn() {
-        extraTurn = true; // Sets extra turn flag
+        extraTurn = true; // Set the extra turn flag to true
     }
 
-    // Resets player state
+    /**
+     * Resets the player state to the initial condition.
+     */
     public void resetPlayer() {
-        activePlayer = "Red"; // Sets player to Red
-        extraTurn = false; // Resets extra turn
+        activePlayer = "Red"; // Reset the active player to Red
+        extraTurn = false; // Reset the extra turn flag
     }
 }

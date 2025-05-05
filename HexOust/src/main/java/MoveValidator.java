@@ -1,35 +1,84 @@
-// Validates moves before placement
+/**
+ * Validates moves before stone placement in the HexOust game.
+ * Ensures moves comply with game rules, including board boundaries, occupancy, and adjacency conditions.
+ */
 public class MoveValidator {
-    private CaptureHandler captureHandler; // Reference to CaptureHandler
+    private CaptureHandler captureHandler; // Reference to the capture handler for checking potential captures
 
-    // Constructor initializes MoveValidator
+    /**
+     * Constructs a MoveValidator with a capture handler.
+     * @param captureHandler The capture handler to check for potential captures
+     * @throws IllegalArgumentException if the captureHandler is null
+     */
     public MoveValidator(CaptureHandler captureHandler) {
-        this.captureHandler = captureHandler; // Assigns CaptureHandler
+        if (captureHandler == null) throw new IllegalArgumentException("CaptureHandler cannot be null");
+        this.captureHandler = captureHandler; // Assign the capture handler reference
     }
 
-    // Checks if a move is valid
+    /**
+     * Checks if a move is valid based on game rules.
+     * Validates board coordinates, occupancy, and adjacency conditions, including potential captures.
+     * @param q The q-coordinate of the move in cube coordinates
+     * @param r The r-coordinate of the move in cube coordinates
+     * @param hexStatus The current state of the board
+     * @param currentPlayer The player making the move ("Red" or "Blue")
+     * @return True if the move is valid, false otherwise
+     * @throws IllegalArgumentException if hexStatus is null
+     * @throws IndexOutOfBoundsException if the coordinates are out of bounds
+     */
     public boolean isValidMove(double q, double r, String[][] hexStatus, String currentPlayer) {
-        int boardQ = (int) q + 6; // Adjusts q to board index
-        int boardR = (int) r + 6; // Adjusts r to board index
-        if (hexStatus[boardQ][boardR] != null) { // Checks if hex is occupied
-            return false; // Returns false if occupied
+        if (hexStatus == null) throw new IllegalArgumentException("Hex status cannot be null");
+        int boardQ = (int) q + 6; // Convert q to board index
+        int boardR = (int) r + 6; // Convert r to board index
+        // Check if the coordinates are within the board boundaries
+        if (boardQ < 0 || boardQ >= hexStatus.length || boardR < 0 || boardR >= hexStatus[0].length) {
+            throw new IndexOutOfBoundsException("Invalid board coordinates");
         }
-        if (captureHandler.wouldCapture(q, r, hexStatus, currentPlayer)) { // Checks for capture
-            return true; // Allows move if capture possible
+        // Check if the target hex is already occupied
+        if (hexStatus[boardQ][boardR] != null) {
+            System.out.println("Move rejected: Hex (" + boardQ + "," + boardR + ") is occupied");
+            return false;
         }
-        int[][] directions = { // Defines adjacent directions
-                {1, -1}, {1, 0}, {0, 1}, // NE, E, SE
-                {-1, 1}, {-1, 0}, {0, -1} // SW, W, NW
-        };
-        for (int[] dir : directions) { // Loops through directions
-            int adjQ = boardQ + dir[0]; // Calculates adjacent q
-            int adjR = boardR + dir[1]; // Calculates adjacent r
-            if (adjQ >= 0 && adjQ < hexStatus.length && adjR >= 0 && adjR < hexStatus[0].length) { // Checks bounds
-                if (hexStatus[adjQ][adjR] != null && hexStatus[adjQ][adjR].equals(currentPlayer)) { // Checks same-color adjacency
-                    return false; // Returns false if adjacent same color
+
+        // Check if the board is empty (first move is always allowed)
+        boolean isBoardEmpty = true;
+        outerLoop:
+        for (String[] row : hexStatus) {
+            for (String cell : row) {
+                if (cell != null) {
+                    isBoardEmpty = false;
+                    break outerLoop;
                 }
             }
         }
-        return true; // Returns true if valid
+        if (isBoardEmpty) {
+            System.out.println("First move on empty board, allowing placement at (" + boardQ + "," + boardR + ")");
+            return true;
+        }
+
+        // Check for adjacent stones of the same color
+        boolean hasAdjacentSameColor = false;
+        int[][] directions = {{1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}}; // Six adjacent directions
+        for (int[] dir : directions) {
+            int adjQ = boardQ + dir[0]; // Calculate adjacent q index
+            int adjR = boardR + dir[1]; // Calculate adjacent r index
+            // Check if the adjacent position is within bounds
+            if (adjQ >= 0 && adjQ < hexStatus.length && adjR >= 0 && adjR < hexStatus[0].length) {
+                if (hexStatus[adjQ][adjR] != null && hexStatus[adjQ][adjR].equals(currentPlayer)) {
+                    hasAdjacentSameColor = true;
+                    break;
+                }
+            }
+        }
+        if (hasAdjacentSameColor) {
+            System.out.println("Adjacent same-color stone detected at (" + boardQ + "," + boardR + ")");
+            // Check if the move allows a capture
+            if (!captureHandler.wouldCapture(q, r, hexStatus, currentPlayer)) {
+                System.out.println("No capture possible, move rejected");
+                return false;
+            }
+            System.out.println("Capture possible, allowing move");
+        }
+        return true;
     }
 }
