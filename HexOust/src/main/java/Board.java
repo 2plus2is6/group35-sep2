@@ -161,8 +161,8 @@ public class Board {
      * Resets the board by clearing all stones.
      */
     public void resetBoard() {
-        for (int i = 0; i < hexStatus.length; i++) { // Loops through rows
-            Arrays.fill(hexStatus[i], null); // Clears row
+        for (String[] status : hexStatus) { // Loops through rows
+            Arrays.fill(status, null); // Clears row
         }
     }
 

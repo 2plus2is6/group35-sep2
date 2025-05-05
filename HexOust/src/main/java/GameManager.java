@@ -17,7 +17,6 @@ public class GameManager {
     private final MoveValidator moveValidator; // Validates player moves
     private final CaptureHandler captureHandler; // Handles capturing opponent pieces
     private final Renderer renderer; // Updates UI elements like turn indicators
-    private final Stage stage; // Main application window
     private final GraphicsContext gc; // Canvas drawing context
     private boolean opponentHadStones; // Tracks if the opponent previously had stones
 
@@ -33,7 +32,6 @@ public class GameManager {
         this.board = board; // Assign the board reference
         this.player = player; // Assign the player reference
         this.renderer = renderer; // Assign the renderer reference
-        this.stage = stage; // Assign the stage reference
         this.gc = gc; // Assign the graphics context
         this.captureHandler = new CaptureHandler(board); // Initialize capture handler
         this.moveValidator = new MoveValidator(captureHandler); // Initialize move validator
