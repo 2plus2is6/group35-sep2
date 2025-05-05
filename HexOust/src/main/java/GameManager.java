@@ -48,14 +48,6 @@ public class GameManager {
     }
 
     /**
-     * Retrieves the renderer for UI updates.
-     * @return The renderer instance
-     */
-    public Renderer getRenderer() {
-        return renderer; // Return the renderer
-    }
-
-    /**
      * Resets the game state to start a new game.
      */
     public void reset() {
@@ -75,9 +67,11 @@ public class GameManager {
         Board.HexCube clickedHex = board.pixelToHex(x, y); // Convert pixel coordinates to hex
         String currentPlayer = player.getCurrentPlayer(); // Get the current player
         if (!isValidMove(clickedHex.q, clickedHex.r, currentPlayer)) { // Check if the move is valid
+            renderer.showInvalidMoveMessage(); // Display invalid move message
             System.out.println("Invalid move!"); // Log the invalid move
             return; // Exit if the move is not allowed
         }
+        renderer.clearInvalidMoveMessage(); // Clear invalid message on valid move
         executeMove(gc, x, y, currentPlayer); // Execute the valid move
         handlePostMoveLogic(currentPlayer); // Handle captures and game end conditions
     }

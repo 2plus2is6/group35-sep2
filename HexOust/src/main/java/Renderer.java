@@ -90,4 +90,24 @@ public class Renderer {
     public void showTurnIndicator() {
         turnIndicator.setVisible(true); // Make the turn indicator visible
     }
+
+    /**
+     * Displays an invalid move message in place of the turn indicator.
+     * Hides the turn indicator and win message while showing the invalid move notification.
+     */
+    public void showInvalidMoveMessage() {
+        turnIndicator.setVisible(false); // Hide the turn indicator
+        winMessageLabel.setText("Invalid Move! Please Try Again"); // Set invalid move message
+        winMessageLabel.setTextFill(Color.YELLOW); // Set a distinct color for invalid move
+        winMessageLabel.setVisible(true); // Show the invalid move message
+    }
+
+    /**
+     * Clears the invalid move message and restores the turn indicator.
+     */
+    public void clearInvalidMoveMessage() {
+        winMessageLabel.setVisible(false); // Hide the invalid move message
+        turnIndicator.setVisible(true); // Restore the turn indicator
+        turnIndicator.setTextFill(Color.RED); // Reset turn indicator color
+    }
 }
