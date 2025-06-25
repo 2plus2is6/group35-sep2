@@ -7,11 +7,10 @@ A turn-based, two-player hexagonal strategy game built in Java & JavaFX as part 
 1. [Overview](#overview)  
 2. [Features](#features)  
 3. [Architecture & Design](#architecture--design)  
-4. [Usage](#usage)  
-5. [Testing](#testing)  
-6. [Documentation](#documentation)  
-7. [Contributing](#contributing)  
-8. [License](#license)
+4. [Testing](#testing)  
+5. [Documentation](#documentation)  
+6. [Contributing](#contributing)  
+7. [License](#license)
 
 ---
 
@@ -56,3 +55,56 @@ HexOust is a base-7 (13×13) hex-grid strategy game in which two players alterna
   – Core loop coordinating input → validation → capture → win check → UI update.  
 - **InputHandler & Renderer**  
   – JavaFX controllers for buttons, canvas events, and on-screen messages.
+
+
+
+## Testing
+
+Automated tests ensure correctness and prevent regressions.
+
+# Run all tests
+mvn test
+
+* **Unit Tests**
+
+  * `MoveValidatorTest.java`
+  * `BoardTest.java`
+  * `CaptureHandlerTest.java`
+* **Integration Tests**
+
+  * `GameManagerTest.java`
+  * `PlayerTest.java`
+  * JavaFX setup via `JavaFXTestInitializer.java`
+
+## Documentation
+
+* **Sprint Plan & Requirements**: `docs/Sprint Plan.pdf`
+* **Design Diagrams**: `docs/uml/`
+* **Module Report & Rubric**:
+
+  * `docs/Group Report SEP 2 grp-35.pdf`
+  * `docs/COMP20050_FinalProjectSubmission_Rubric.pdf`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+
+   ```bash
+   git checkout -b feature/YourFeature
+   ```
+3. Commit your changes with clear messages
+4. Push to your branch
+
+   ```bash
+   git push origin feature/YourFeature
+   ```
+5. Open a Pull Request for review
+
+Please follow the existing code style and include tests for any new functionality.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+
